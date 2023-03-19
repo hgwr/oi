@@ -5,12 +5,14 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 @RedisHash("room")
 @Data
 @SuperBuilder
+@AllArgsConstructor
 public class Room {
   public enum Status {
     START,
@@ -21,11 +23,24 @@ public class Room {
     DEALER_TURN_1,
     DEALER_TURN_2,
     LIQUIDATION,
-    END
+    END;
+    private static final Status[] values = values();
+    public Status prev() {
+        return values[(this.ordinal() - 1 + values.length) % values.length];
+    }
+    public Status next() {
+        return values[(this.ordinal() + 1) % values.length];
+    }
   }
+
   @Id private String id;
   private List<String> members;
   private List<List<String>> hands;
   private List<Bet> bets;
   private Status status;
+
+
+  public Room() {
+    this.status = Status.START;
+  }
 }
