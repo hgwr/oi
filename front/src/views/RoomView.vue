@@ -23,5 +23,12 @@ fetch()
 
 <template>
   <h1>Room {{ roomId }}</h1>
+
+  <div>
+    あなたの名前 : {{ room.yourName }}
+  </div>
+
+  <div>
   {{ room }}
+  </div>
 </template>
