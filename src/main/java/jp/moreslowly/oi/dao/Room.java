@@ -1,5 +1,6 @@
 package jp.moreslowly.oi.dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -38,7 +39,7 @@ public class Room {
   private List<List<String>> hands;
   private List<Bet> bets;
   private Status status;
-
+  private LocalDateTime updatedAt;
 
   public Room() {
     this.status = Status.START;

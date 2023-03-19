@@ -1,8 +1,11 @@
 package jp.moreslowly.oi.service;
 
+import org.springframework.web.context.request.async.DeferredResult;
+
 import jakarta.servlet.http.HttpSession;
 import jp.moreslowly.oi.dto.RoomDto;
 
 public interface RoomService {
   RoomDto getRoomById(HttpSession session, String id);
+  void subscribe(String id, DeferredResult<String> deferredResult);
 }

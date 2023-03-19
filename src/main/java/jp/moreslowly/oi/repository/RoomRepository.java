@@ -11,4 +11,5 @@ import jp.moreslowly.oi.dao.Room;
 public interface RoomRepository extends CrudRepository<Room, String> {
   boolean existsById(String id);
   Optional<Room> findById(String id);
+  long count();
 }

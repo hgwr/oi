@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import jakarta.servlet.http.HttpSession;
 import jp.moreslowly.oi.common.Nickname;
@@ -17,12 +18,20 @@ import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.dao.Room.Status;
 import jp.moreslowly.oi.dto.RoomDto;
 import jp.moreslowly.oi.repository.RoomRepository;
+import jp.moreslowly.oi.tasks.DealerManager;
+import lombok.extern.log4j.Log4j2;
 
 @Service
+@Log4j2
 public class RoomServiceImpl implements RoomService {
+
+  private final int MAX_ROOM_SIZE = 10;
 
   @Autowired
   private RoomRepository roomRepository;
+
+  @Autowired
+  private DealerManager dealerManager;
 
   @Override
   public RoomDto getRoomById(HttpSession session, String id) {
@@ -34,6 +43,9 @@ public class RoomServiceImpl implements RoomService {
     if (maybeRoom.isPresent()) {
       room = maybeRoom.get();
     } else {
+      if (roomRepository.count() >= MAX_ROOM_SIZE) {
+        throw new RuntimeException("Room is full");
+      }
       room = Room.builder().id(id).status(Status.START).build();
       roomRepository.save(room);
     }
@@ -53,5 +65,20 @@ public class RoomServiceImpl implements RoomService {
         .id(id)
         .yourName(nickname)
         .status(room.getStatus()).build();
+  }
+
+  @Override
+  public void subscribe(String id, DeferredResult<String> deferredResult) {
+    dealerManager.getLockMap().putIfAbsent(id, new Object());
+    Object lock = dealerManager.getLockMap().get(id);
+    synchronized (lock) {
+      try {
+        lock.wait();
+      } catch (InterruptedException e) {
+        // do nothing
+      }
+    }
+    log.info("subscribe: " + id + " send queue");
+    deferredResult.setResult("queue");
   }
 }
