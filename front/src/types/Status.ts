@@ -1,0 +1,11 @@
+export enum Status {
+  START,
+  SHUFFLE,
+  HAND_OUT_CARDS,
+  WAIT_TO_BET,
+  WAIT_TO_REQUEST,
+  DEALER_TURN_1,
+  DEALER_TURN_2,
+  LIQUIDATION,
+  END,
+}

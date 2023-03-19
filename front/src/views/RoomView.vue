@@ -1,20 +1,27 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from '../axios'
+import { useRoute, useRouter } from 'vue-router'
+import roomService from '../services/RoomService'
+import { Room } from '../types/Room'
 
-let rooms = ref<string[]>([])
+const router = useRouter()
+const route = useRoute()
+
+if (!route.query.id) {
+  router.push('/')
+}
+const roomId = route.query.id as string
+
+let room = ref<Room>({} as Room)
 
 const fetch = async () => {
-  const { data } = await axios.get('/rooms/')
-  rooms.value = data
+  room.value = await roomService.getRoomById(roomId)
 }
 
 fetch()
 </script>
 
 <template>
-  <h1>Oi</h1>
-  <div v-for="room in rooms">
-    {{ room }}
-  </div>
+  <h1>Room {{ roomId }}</h1>
+  {{ room }}
 </template>
