@@ -30,20 +30,74 @@ public class DealerTask implements Runnable {
         return UpdateStatus.NOT_UPDATED;
       }
 
-      LocalDateTime now = LocalDateTime.now();
-      if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(5))) {
-        return UpdateStatus.NOT_UPDATED;
+      switch (room.getStatus()) {
+        case START:
+          return processStart(room);
+        case SHUFFLE:
+          return processShuffle(room);
+        case HAND_OUT_CARDS:
+          return processHandOutCards(room);
+        case WAIT_TO_BET:
+          return processWaitToBet(room);
+        case WAIT_TO_REQUEST:
+          return processWaitToRequest(room);
+        case DEALER_TURN_1:
+          return processDealerTurn1(room);
+        case DEALER_TURN_2:
+          return processDealerTurn2(room);
+        case LIQUIDATION:
+          return processLiquidation(room);
+        case END:
+          return processEnd(room);
+        default:
+          return UpdateStatus.NOT_UPDATED;
       }
-
-      if (Objects.isNull(room.getStatus())) {
-        room.setStatus(Room.Status.START);
-      } else {
-        room.setStatus(room.getStatus().next());
-      }
-      room.setUpdatedAt(now);
-      roomRepository.save(room);
-      log.info("DealerTask: " + room.getId() + " " + room.getStatus());
-      return UpdateStatus.UPDATED;
     });
+  }
+
+  private final int GENERAL_TIMEOUT_SEC = 30;
+
+  private UpdateStatus processStart(Room room) {
+    LocalDateTime now = LocalDateTime.now();
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
+      return UpdateStatus.NOT_UPDATED;
+    }
+
+    room.setStatus(Room.Status.START.next());
+    room.setUpdatedAt(now);
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
+  }
+
+  private UpdateStatus processShuffle(Room room) {
+    return UpdateStatus.NOT_UPDATED;
+  }
+
+  private UpdateStatus processHandOutCards(Room room) {
+    return UpdateStatus.NOT_UPDATED;
+  }
+
+  private UpdateStatus processWaitToBet(Room room) {
+    return UpdateStatus.NOT_UPDATED;
+  }
+
+  private UpdateStatus processWaitToRequest(Room room) {
+    return UpdateStatus.NOT_UPDATED;
+  }
+
+  private UpdateStatus processDealerTurn1(Room room) {
+    return UpdateStatus.NOT_UPDATED;
+  }
+
+  private UpdateStatus processDealerTurn2(Room room) {
+    return UpdateStatus.NOT_UPDATED;
+  }
+
+  private UpdateStatus processLiquidation(Room room) {
+    return UpdateStatus.NOT_UPDATED;
+  }
+
+  private UpdateStatus processEnd(Room room) {
+    return UpdateStatus.NOT_UPDATED;
   }
 }
