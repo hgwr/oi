@@ -127,6 +127,7 @@ const roomHands = () => {
       </div>
       <div v-else>
         <BetButton
+          v-if="index + 1 != 7"
           @bet="bet"
           :roomId="roomId"
           :userName="room.yourName"
