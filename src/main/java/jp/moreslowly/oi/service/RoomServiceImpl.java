@@ -107,6 +107,9 @@ public class RoomServiceImpl implements RoomService {
 
     String nickname = getNickname(session, room);
 
+    if (Objects.isNull(room.getMembers())) {
+      room.setMembers(new ArrayList<>());
+    }
     if (!room.getMembers().contains(nickname)) {
       room.getMembers().add(nickname);
       dealerManager.updateAndNotify(id, () -> {
@@ -149,6 +152,7 @@ public class RoomServiceImpl implements RoomService {
       Room room = roomRepository.findById(id).orElse(null);
       if (Objects.nonNull(room)) {
         room.setStatus(Status.START);
+        room.setMembers(new ArrayList<>());
         room.setDeck(null);
         room.setHands1(null);
         room.setHands2(null);

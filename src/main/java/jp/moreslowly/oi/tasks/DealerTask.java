@@ -135,6 +135,14 @@ public class DealerTask implements Runnable {
 
   private UpdateStatus processWaitToRequest(Room room) {
     log.info("processWaitToRequest");
+
+    if (CollectionUtils.isEmpty(room.getBets())) {
+      room.setStatus(Room.Status.WAIT_TO_REQUEST.next());
+      room.setUpdatedAt(LocalDateTime.now());
+      roomRepository.save(room);
+      return UpdateStatus.UPDATED;
+    }
+
     LocalDateTime now = LocalDateTime.now();
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
       return UpdateStatus.NOT_UPDATED;
@@ -202,8 +210,13 @@ public class DealerTask implements Runnable {
   private UpdateStatus processEnd(Room room) {
     log.info("processEnd");
 
+    int timeout = GENERAL_TIMEOUT_SEC;
+    if (CollectionUtils.isEmpty(room.getBets())) {
+      timeout = SHORT_TIMEOUT_SEC;
+    }
+
     LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(timeout))) {
       return UpdateStatus.NOT_UPDATED;
     }
 

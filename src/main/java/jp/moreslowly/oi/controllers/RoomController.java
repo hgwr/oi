@@ -49,7 +49,7 @@ public class RoomController {
     // UUID validation
     UUID.fromString(dto.getId());
 
-    String yourName = session.getAttribute(SessionKey.NICKNAME).toString();
+    String yourName = (String) session.getAttribute(SessionKey.NICKNAME);
     if (yourName == null) {
       throw new BadRequestException("Invalid nickname");
     }
