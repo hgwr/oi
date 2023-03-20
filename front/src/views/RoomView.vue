@@ -118,7 +118,7 @@ const roomHands = () => {
       />
       <div v-if="myBetsOf(index + 1).length > 0">
         <div
-          class="betAmount"
+          class="myBetAmount"
           v-for="bet in myBetsOf(index + 1)"
           :key="bet.userName"
         >
@@ -162,6 +162,16 @@ const roomHands = () => {
   align-items: center;
 }
 
+.myBetAmount {
+  color: white;
+  background-color: black;
+  font-size: 20px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 0px;
+  margin: 5px;
+}
+
 .betAmount {
   font-size: 20px;
   padding: 5px;
@@ -169,4 +179,5 @@ const roomHands = () => {
   border-radius: 0px;
   margin: 5px;
 }
+
 </style>
