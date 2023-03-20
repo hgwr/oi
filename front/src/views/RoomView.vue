@@ -30,7 +30,7 @@ roomService.subscribeToRoom(roomId, (newRoom: Room) => {
 </script>
 
 <template>
-  <h1>Room {{ roomId }}</h1>
+  <div>Room {{ roomId }}</div>
 
   <div>
     あなたの名前 : {{ room.yourName }}
@@ -45,6 +45,26 @@ roomService.subscribeToRoom(roomId, (newRoom: Room) => {
   </div>
 
   <div>
-    <CardComponent v-for="card in room.hands1" :key="card.suit + ' ' + card.rank" :card="card" />
+    <div>
+      <CardComponent v-for="card in room.hands1" :key="card.suit + ' ' + card.rank" :card="card" />
+    </div>
+    <div>
+      <CardComponent v-for="card in room.hands2" :key="card.suit + ' ' + card.rank" :card="card" />
+    </div>
+    <div>
+      <CardComponent v-for="card in room.hands3" :key="card.suit + ' ' + card.rank" :card="card" />
+    </div>
+    <div>
+      <CardComponent v-for="card in room.hands4" :key="card.suit + ' ' + card.rank" :card="card" />
+    </div>
+    <div>
+      <CardComponent v-for="card in room.hands5" :key="card.suit + ' ' + card.rank" :card="card" />
+    </div>
+    <div>
+      <CardComponent v-for="card in room.hands6" :key="card.suit + ' ' + card.rank" :card="card" />
+    </div>
+    <div>
+      <CardComponent v-for="card in room.hands7" :key="card.suit + ' ' + card.rank" :card="card" />
+    </div>
   </div>
 </template>
