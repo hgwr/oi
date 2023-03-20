@@ -30,7 +30,7 @@ roomService.subscribeToRoom(roomId, (newRoom: Room) => {
 </script>
 
 <template>
-  <div>Room {{ roomId }}</div>
+  <div>{{ roomId }}</div>
 
   <div>
     あなたの名前 : {{ room.yourName }}
