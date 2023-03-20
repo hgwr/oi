@@ -77,18 +77,39 @@ public class Room {
   public List<Card> getHandsAt(int index) {
     switch (index) {
       case 1:
+        if (Objects.isNull(this.hands1)) {
+          this.hands1 = new ArrayList<>();
+        }
         return getHands1();
       case 2:
+        if (Objects.isNull(this.hands2)) {
+          this.hands2 = new ArrayList<>();
+        }
         return getHands2();
       case 3:
+        if (Objects.isNull(this.hands3)) {
+          this.hands3 = new ArrayList<>();
+        }
         return getHands3();
       case 4:
+        if (Objects.isNull(this.hands4)) {
+          this.hands4 = new ArrayList<>();
+        }
         return getHands4();
       case 5:
+        if (Objects.isNull(this.hands5)) {
+          this.hands5 = new ArrayList<>();
+        }
         return getHands5();
       case 6:
+        if (Objects.isNull(this.hands6)) {
+          this.hands6 = new ArrayList<>();
+        }
         return getHands6();
       case 7:
+        if (Objects.isNull(this.hands7)) {
+          this.hands7 = new ArrayList<>();
+        }
         return getHands7();
       default:
         throw new IllegalArgumentException("index must be 1 to 7");
@@ -96,6 +117,9 @@ public class Room {
   }
 
   public void setHandsAt(int index, List<Card> hands) {
+    if (Objects.isNull(hands)) {
+      throw new IllegalArgumentException("hands must not be null");
+    }
     switch (index) {
       case 1:
         setHands1(hands);

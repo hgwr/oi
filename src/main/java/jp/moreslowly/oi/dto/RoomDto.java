@@ -128,7 +128,7 @@ public class RoomDto {
       if (room.getHandsAt(handIndex).size() == 3) {
         cards.add(room.getHandsAt(handIndex).get(0));
         cards.add(room.getHandsAt(handIndex).get(1));
-      } else {
+      } else if (room.getHandsAt(handIndex).size() == 2) {
         cards.add(room.getHandsAt(handIndex).get(0));
       }
       dto.setHandsAt(handIndex, cards);
