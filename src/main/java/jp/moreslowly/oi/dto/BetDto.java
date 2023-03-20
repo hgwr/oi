@@ -1,11 +1,15 @@
 package jp.moreslowly.oi.dto;
 
 import jp.moreslowly.oi.dao.Bet;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BetDto {
   private String roomId;
   private String userName;

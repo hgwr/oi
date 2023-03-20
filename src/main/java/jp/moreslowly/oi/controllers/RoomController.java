@@ -67,10 +67,11 @@ public class RoomController {
   @PostMapping("/bet")
   public void bet(@RequestBody BetDto dto) {
     // UUID validation
-    UUID.fromString(dto.getRoomId());
+    UUID roomIdUUID = UUID.fromString(dto.getRoomId());
 
     String sessionRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
-    if (!dto.getRoomId().equals(sessionRoomId)) {
+    UUID sessionRoomIdUUID = UUID.fromString(sessionRoomId);
+    if (!roomIdUUID.equals(sessionRoomIdUUID)) {
       throw new BadRequestException("Invalid room id");
     }
 

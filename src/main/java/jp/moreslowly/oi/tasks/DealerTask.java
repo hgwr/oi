@@ -60,7 +60,7 @@ public class DealerTask implements Runnable {
   }
 
   private final int SHORT_TIMEOUT_SEC = 5;
-  private final int GENERAL_TIMEOUT_SEC = 30;
+  private final int GENERAL_TIMEOUT_SEC = 300;
 
   private UpdateStatus processStart(Room room) {
     log.info("processStart: room id {}", room.getId());

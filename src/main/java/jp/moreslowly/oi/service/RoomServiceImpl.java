@@ -90,7 +90,11 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public RoomDto enterRoom(HttpSession session, String id) {
     String enteredRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
-    if (Objects.nonNull(enteredRoomId) && !enteredRoomId.equals(id)) {
+    if (Objects.isNull(enteredRoomId)) {
+      session.setAttribute(SessionKey.ROOM_ID, id);
+      enteredRoomId = id;
+    }
+    if (!enteredRoomId.equals(id)) {
       session.removeAttribute(SessionKey.NICKNAME);
       session.setAttribute(SessionKey.ROOM_ID, id);
     }
