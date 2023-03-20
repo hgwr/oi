@@ -20,11 +20,14 @@ import org.springframework.web.context.request.async.DeferredResult;
 import jakarta.servlet.http.HttpSession;
 import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.common.SessionKey;
+import jp.moreslowly.oi.dao.Bet;
 import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.dao.Room.Status;
 import jp.moreslowly.oi.dto.BetDto;
+import jp.moreslowly.oi.dto.RequestCardDto;
 import jp.moreslowly.oi.dto.RoomDto;
 import jp.moreslowly.oi.exception.BadRequestException;
+import jp.moreslowly.oi.models.Card;
 import jp.moreslowly.oi.models.Nickname;
 import jp.moreslowly.oi.repository.RoomRepository;
 import jp.moreslowly.oi.tasks.DealerManager;
@@ -177,6 +180,69 @@ public class RoomServiceImpl implements RoomService {
       wallet -= betDto.getBetAmount();
       room.getWallets().put(betDto.getUserName(), wallet);
       room.getBets().add(betDto.toEntity());
+      roomRepository.save(room);
+
+      return UpdateStatus.UPDATED;
+    });
+  }
+
+  @Override
+  public void requestCard(RequestCardDto requestOneMoreDto) {
+    dealerManager.updateAndNotify(requestOneMoreDto.getRoomId(), () -> {
+      Room room = roomRepository.findById(requestOneMoreDto.getRoomId()).orElse(null);
+      if (Objects.isNull(room)) {
+        return UpdateStatus.NOT_UPDATED;
+      }
+
+      if (!room.getMembers().contains(requestOneMoreDto.getUserName())) {
+        throw new BadRequestException("You are not member of this room");
+      }
+
+      Optional<Bet> maybeBet = room.getBets().stream().filter(
+          bet -> bet.getHandIndex() == requestOneMoreDto.getHandIndex()).findFirst();
+      if (!maybeBet.isPresent()) {
+        throw new BadRequestException("You are not owner of this hand");
+      }
+      Bet bet = maybeBet.get();
+      if (!bet.getUserName().equals(requestOneMoreDto.getUserName())) {
+        throw new BadRequestException("You are not owner of this hand: " + bet.getUserName() + ", " +
+            requestOneMoreDto.getUserName());
+      }
+
+      Card aCard = room.getDeck().remove(0);
+      if (requestOneMoreDto.getHandIndex() == 1) {
+        if (room.getHands1().size() == 3) {
+          throw new BadRequestException("You can't request more card");
+        }
+        room.getHands1().add(aCard);
+      } else if (requestOneMoreDto.getHandIndex() == 2) {
+        if (room.getHands2().size() == 3) {
+          throw new BadRequestException("You can't request more card");
+        }
+        room.getHands2().add(aCard);
+      } else if (requestOneMoreDto.getHandIndex() == 3) {
+        if (room.getHands3().size() == 3) {
+          throw new BadRequestException("You can't request more card");
+        }
+        room.getHands3().add(aCard);
+      } else if (requestOneMoreDto.getHandIndex() == 4) {
+        if (room.getHands4().size() == 3) {
+          throw new BadRequestException("You can't request more card");
+        }
+        room.getHands4().add(aCard);
+      } else if (requestOneMoreDto.getHandIndex() == 5) {
+        if (room.getHands5().size() == 3) {
+          throw new BadRequestException("You can't request more card");
+        }
+        room.getHands5().add(aCard);
+      } else if (requestOneMoreDto.getHandIndex() == 6) {
+        if (room.getHands6().size() == 3) {
+          throw new BadRequestException("You can't request more card");
+        }
+        room.getHands6().add(aCard);
+      }
+
+      room.setUpdatedAt(LocalDateTime.now());
       roomRepository.save(room);
 
       return UpdateStatus.UPDATED;

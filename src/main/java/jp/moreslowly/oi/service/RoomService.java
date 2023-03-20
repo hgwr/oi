@@ -4,6 +4,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import jakarta.servlet.http.HttpSession;
 import jp.moreslowly.oi.dto.BetDto;
+import jp.moreslowly.oi.dto.RequestCardDto;
 import jp.moreslowly.oi.dto.RoomDto;
 
 public interface RoomService {
@@ -15,4 +16,6 @@ public interface RoomService {
   void reset(String id);
 
   void bet(BetDto betDto);
+
+  void requestCard(RequestCardDto requestOneMoreDto);
 }

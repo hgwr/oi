@@ -30,4 +30,9 @@ export default class RoomService {
     const { data } = await axios.post(`/room/bet`, { roomId, userName, handIndex, betAmount })
     return data
   }
+
+  static async requestCard(roomId: string, userName: string, handIndex: number): Promise<Room> {
+    const { data } = await axios.post(`/room/requestCard`, { roomId, userName, handIndex })
+    return data
+  }
 }

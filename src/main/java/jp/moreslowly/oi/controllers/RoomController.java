@@ -19,6 +19,7 @@ import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.common.SessionKey;
 import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.IdDto;
+import jp.moreslowly.oi.dto.RequestCardDto;
 import jp.moreslowly.oi.dto.RoomDto;
 import jp.moreslowly.oi.exception.BadRequestException;
 import jp.moreslowly.oi.service.RoomService;
@@ -84,5 +85,24 @@ public class RoomController {
     }
 
     roomService.bet(dto);
+  }
+
+  @PostMapping("/requestCard")
+  public void requestOneMore(@RequestBody RequestCardDto dto) {
+    // UUID validation
+    UUID roomIdUUID = UUID.fromString(dto.getRoomId());
+
+    String sessionRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
+    UUID sessionRoomIdUUID = UUID.fromString(sessionRoomId);
+    if (!roomIdUUID.equals(sessionRoomIdUUID)) {
+      throw new BadRequestException("Invalid room id");
+    }
+
+    String sessionNickname = (String) session.getAttribute(SessionKey.NICKNAME);
+    if (!dto.getUserName().equals(sessionNickname)) {
+      throw new BadRequestException("Invalid nickname");
+    }
+
+    roomService.requestCard(dto);
   }
 }

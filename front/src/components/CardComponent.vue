@@ -35,7 +35,7 @@ const isTen = (rank: RankType) => {
 
 .card {
   font-family: 'Courier New', Courier, monospace;
-  font-size: 50px;
+  font-size: 30px;
   margin: 0 10px 0 10px;
 }
 
@@ -52,9 +52,9 @@ const isTen = (rank: RankType) => {
 }
 
 .ten {
-  padding-bottom: 10px;
+  padding-bottom: 7.5px;
   display: inline-block;
-  font-size: 25px;
+  font-size: 15px;
   -webkit-transform: scale(1, 1.8);
   -moz-transform: scale(1, 1.8);
   transform: scale(1, 1.8);

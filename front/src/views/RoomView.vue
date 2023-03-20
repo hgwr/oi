@@ -90,9 +90,9 @@ const roomHands = () => {
   return returnValue
 }
 
-const requestOneCard = async (handIndex: number) => {
-  console.log('requestOneCard: ', handIndex)
-  // await roomService.requestOneCard(roomId, handIndex)
+const requestCard = async (handIndex: number) => {
+  console.log('requestCard: ', handIndex)
+  await roomService.requestCard(roomId, room.value.yourName, handIndex)
 }
 
 </script>
@@ -132,11 +132,11 @@ const requestOneCard = async (handIndex: number) => {
           {{ bet.betAmount }}
         </div>
         <button
-          class="requestOneCard"
-          v-if="room.status === Status.WAIT_TO_REQUEST"
-          @click="requestOneCard(index + 1)"
+          class="requestCard"
+          v-if="room.status === Status.WAIT_TO_REQUEST && roomHands()[index].length === 2"
+          @click="requestCard(index + 1)"
         >
-          もう一枚引く
+          もう一枚
         </button>
       </template>
       <template v-else>
@@ -198,7 +198,7 @@ const requestOneCard = async (handIndex: number) => {
   margin: 5px;
 }
 
-.requestOneCard {
+.requestCard {
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 10px;
