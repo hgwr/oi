@@ -4,14 +4,14 @@ import { Room } from '../types/Room'
 
 export default class RoomService {
   static async enterRoom(roomId: string): Promise<Room> {
-    const { data } = await axios.get(`/room/`, { params: { id: roomId } })
+    const { data } = await axios.post(`/room/`, { id: roomId })
     return data
   }
 
   static async subscribeToRoom(roomId: string, callback: (room: Room) => void): Promise<Room> {
     while (true) {
       try {
-        const response = await axios.get(`/room/subscribe`, { params: { id: roomId } })
+        const response = await axios.post(`/room/subscribe`, { id: roomId })
 
         if (response.status == 502) {
           await new Promise((resolve) => setTimeout(resolve, 1000))
