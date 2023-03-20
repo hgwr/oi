@@ -17,15 +17,14 @@ public class DealerManager {
 
   private ConcurrentHashMap<String, Object> lockMap = new ConcurrentHashMap<>();
 
-  public ConcurrentMap<String, Object> getLockMap() {
-    return lockMap;
+  public Object getLock(String roomId) {
+    return lockMap.computeIfAbsent(roomId, k -> new Object());
   }
 
   @Scheduled(fixedRate = 1000)
   public void startDealer() {
-    log.info("startDealer");
     roomRepository.findAll().forEach(room -> {
-      new Thread(new DealerTask(lockMap, roomRepository, room.getId())).start();
+      new Thread(new DealerTask(this, roomRepository, room.getId())).start();
     });
   }
 }

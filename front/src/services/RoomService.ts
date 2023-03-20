@@ -8,23 +8,32 @@ export default class RoomService {
     return data
   }
 
-  static async subscribeToRoom(roomId: string, callback: () => void): Promise<string> {
+  static async subscribeToRoom(roomId: string, callback: (room: Room) => void): Promise<Room> {
     while (true) {
-      const response = await axios.get(`/room/subscribe`, { params: { id: roomId } })
+      try {
+        const response = await axios.get(`/room/subscribe`, { params: { id: roomId } })
 
-      if (response.status == 502) {
-        // timeout
-        // do nothing
-      } else if (response.status != 200) {
+        if (response.status == 502) {
+          // timeout
+          // do nothing
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          console.log('1')
+        } else if (response.status != 200) {
+          // some error occurred
+          // wait 1 second and retry
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          console.log('2')
+        } else {
+          console.log('3')
+          let room = response.data
+          callback(room)
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        }
+      } catch (error) {
         // some error occurred
         // wait 1 second and retry
-        let { message } = response.data
-        console.log(message)
+        console.log('4')
         await new Promise((resolve) => setTimeout(resolve, 1000))
-      } else {
-        let { message } = response.data
-        console.log(message)
-        callback()
       }
     }
   }

@@ -11,42 +11,39 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DealerTask implements Runnable {
 
-  private ConcurrentMap<String, Object> lockMap;
+  private DealerManager manager;
   private RoomRepository roomRepository;
   private String roomId;
 
-  public DealerTask(ConcurrentMap<String, Object> lockMap, RoomRepository roomRepository, String roomId) {
-    this.lockMap = lockMap;
+  public DealerTask(DealerManager manager, RoomRepository roomRepository, String roomId) {
+    this.manager = manager;
     this.roomRepository = roomRepository;
     this.roomId = roomId;
   }
 
   @Override
   public void run() {
-    Room room = roomRepository.findById(roomId).orElse(null);
-    if (Objects.isNull(room)) {
-      return;
-    }
-
-    log.info("DealerTask: " + room.getId() + " " + room.getStatus());
-
-    LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(5))) {
-      return;
-    }
-    if (Objects.isNull(room.getStatus())) {
-      room.setStatus(Room.Status.START);
-    } else {
-      room.setStatus(room.getStatus().next());
-    }
-    room.setUpdatedAt(now);
-    roomRepository.save(room);
-
-    Object lock = lockMap.get(roomId);
-    if (Objects.nonNull(lock)) {
-      synchronized (lock) {
-        lock.notifyAll();
+    Object lock = manager.getLock(roomId);
+    synchronized (lock) {
+      Room room = roomRepository.findById(roomId).orElse(null);
+      if (Objects.isNull(room)) {
+        return;
       }
+
+      LocalDateTime now = LocalDateTime.now();
+      if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(5))) {
+        return;
+      }
+      if (Objects.isNull(room.getStatus())) {
+        room.setStatus(Room.Status.START);
+      } else {
+        room.setStatus(room.getStatus().next());
+      }
+      room.setUpdatedAt(now);
+      roomRepository.save(room);
+      log.info("DealerTask: " + room.getId() + " " + room.getStatus());
+
+      lock.notifyAll();
     }
   }
 }
