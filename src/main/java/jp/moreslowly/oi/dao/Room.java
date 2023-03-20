@@ -38,7 +38,13 @@ public class Room {
   @Id private String id;
   private List<String> members;
   private List<String> deck;
-  private List<List<String>> hands;
+  private List<String> hands1;
+  private List<String> hands2;
+  private List<String> hands3;
+  private List<String> hands4;
+  private List<String> hands5;
+  private List<String> hands6;
+  private List<String> hands7;
   private List<Bet> bets;
   private Status status;
   private LocalDateTime updatedAt;

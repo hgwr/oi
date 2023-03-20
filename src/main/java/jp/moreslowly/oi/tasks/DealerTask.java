@@ -92,7 +92,13 @@ public class DealerTask implements Runnable {
       hands.add(hand);
     }
     log.info("processHandOutCards: hands={}", hands);
-    room.setHands(hands);
+    room.setHands1(hands.get(0));
+    room.setHands2(hands.get(1));
+    room.setHands3(hands.get(2));
+    room.setHands4(hands.get(3));
+    room.setHands5(hands.get(4));
+    room.setHands6(hands.get(5));
+    room.setHands7(hands.get(6));
     room.setStatus(Room.Status.HAND_OUT_CARDS.next());
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);

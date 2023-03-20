@@ -17,7 +17,13 @@ public class RoomDto {
   private String id;
   private String yourName;
   private List<String> members;
-  private List<List<String>> hands;
+  private List<String> hands1;
+  private List<String> hands2;
+  private List<String> hands3;
+  private List<String> hands4;
+  private List<String> hands5;
+  private List<String> hands6;
+  private List<String> hands7;
   private List<BetDto> bets;
   private Status status;
 
@@ -26,7 +32,13 @@ public class RoomDto {
         .id(room.getId())
         .yourName(yourName)
         .members(room.getMembers())
-        .hands(room.getHands())
+        .hands1(room.getHands1())
+        .hands2(room.getHands2())
+        .hands3(room.getHands3())
+        .hands4(room.getHands4())
+        .hands5(room.getHands5())
+        .hands6(room.getHands6())
+        .hands7(room.getHands7())
         .bets(Objects.isNull(room.getBets())
             ? new ArrayList<>()
             : room.getBets().stream().map(BetDto::fromEntity).collect(Collectors.toList()))

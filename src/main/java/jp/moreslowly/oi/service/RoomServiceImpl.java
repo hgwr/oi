@@ -121,7 +121,13 @@ public class RoomServiceImpl implements RoomService {
       if (Objects.nonNull(room)) {
         room.setStatus(Status.START);
         room.setDeck(null);
-        room.setHands(null);
+        room.setHands1(null);
+        room.setHands2(null);
+        room.setHands3(null);
+        room.setHands4(null);
+        room.setHands5(null);
+        room.setHands6(null);
+        room.setHands7(null);
         room.setBets(null);
         roomRepository.save(room);
       }
