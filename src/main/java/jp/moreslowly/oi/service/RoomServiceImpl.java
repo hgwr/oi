@@ -1,5 +1,6 @@
 package jp.moreslowly.oi.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -154,6 +155,7 @@ public class RoomServiceImpl implements RoomService {
         room.setHands6(null);
         room.setHands7(null);
         room.setBets(null);
+        room.setUpdatedAt(LocalDateTime.now());
         roomRepository.save(room);
       }
       return UpdateStatus.UPDATED;
