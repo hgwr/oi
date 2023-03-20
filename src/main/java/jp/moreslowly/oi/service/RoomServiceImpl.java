@@ -91,6 +91,19 @@ public class RoomServiceImpl implements RoomService {
     return nickname;
   }
 
+  private void joinRoom(Room room, String nickname) {
+    if (CollectionUtils.isEmpty(room.getMembers())) {
+      room.setMembers(new ArrayList<>());
+    }
+    if (!room.getMembers().contains(nickname)) {
+      room.getMembers().add(nickname);
+      dealerManager.updateAndNotify(room.getId(), () -> {
+        roomRepository.save(room);
+        return UpdateStatus.UPDATED;
+      });
+    }
+  }
+
   @Override
   public RoomDto enterRoom(HttpSession session, String id) {
     String enteredRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
@@ -107,16 +120,7 @@ public class RoomServiceImpl implements RoomService {
 
     String nickname = getNickname(session, room);
 
-    if (Objects.isNull(room.getMembers())) {
-      room.setMembers(new ArrayList<>());
-    }
-    if (!room.getMembers().contains(nickname)) {
-      room.getMembers().add(nickname);
-      dealerManager.updateAndNotify(id, () -> {
-        roomRepository.save(room);
-        return UpdateStatus.UPDATED;
-      });
-    }
+    joinRoom(room, nickname);
 
     dealerManager.updateAndNotify(id, () -> {
       if (Objects.isNull(room.getWallets())) {
@@ -135,9 +139,18 @@ public class RoomServiceImpl implements RoomService {
 
   @Override
   public void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult) {
-    log.info("## subscribed");
+    dealerManager.updateAndNotify(id, () -> {
+      Room room = findOrCreateRoom(id);
+      if (Objects.nonNull(room.getMembers()) && room.getMembers().contains(yourName)) {
+        return UpdateStatus.NOT_UPDATED;
+      }
+      joinRoom(room, yourName);
+      room.setUpdatedAt(LocalDateTime.now());
+      roomRepository.save(room);
+      return UpdateStatus.UPDATED;
+    });
+
     runners.execute(() -> {
-      log.info("### runAsync");
       dealerManager.waitForUpdating(id, () -> {
         Room room = roomRepository.findById(id).orElseThrow(
             () -> new BadRequestException("Room is not found"));
