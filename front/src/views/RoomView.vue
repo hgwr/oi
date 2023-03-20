@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import roomService from '../services/RoomService'
+import { Status } from '../types/Status'
 import { Room } from '../types/Room'
 import { Bet } from '../types/Bet'
 import CardComponent from '../components/CardComponent.vue'
@@ -88,6 +89,12 @@ const roomHands = () => {
   }
   return returnValue
 }
+
+const requestOneCard = async (handIndex: number) => {
+  console.log('requestOneCard: ', handIndex)
+  // await roomService.requestOneCard(roomId, handIndex)
+}
+
 </script>
 
 <template>
@@ -124,15 +131,23 @@ const roomHands = () => {
         >
           {{ bet.betAmount }}
         </div>
+        <button
+          v-if="room.status === Status.WAIT_TO_REQUEST"
+          @click="requestOneCard(index + 1)"
+        >
+          もう一枚引く
+        </button>
       </div>
       <div v-else>
-        <BetButton
-          v-if="index + 1 != 7"
-          @bet="bet"
-          :roomId="roomId"
-          :userName="room.yourName"
-          :handIndex="index + 1"
-        />
+        <template v-if="index + 1 != 7">
+          <BetButton
+            v-if="room.status === Status.WAIT_TO_BET"
+            @bet="bet"
+            :roomId="roomId"
+            :userName="room.yourName"
+            :handIndex="index + 1"
+          />
+        </template>
       </div>
       <div v-if="betsOf(index + 1).length > 0">
         <div
@@ -180,5 +195,4 @@ const roomHands = () => {
   border-radius: 0px;
   margin: 5px;
 }
-
 </style>
