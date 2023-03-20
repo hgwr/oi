@@ -20,7 +20,9 @@ import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.common.SessionKey;
 import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.dao.Room.Status;
+import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.RoomDto;
+import jp.moreslowly.oi.exception.BadRequestException;
 import jp.moreslowly.oi.models.Nickname;
 import jp.moreslowly.oi.repository.RoomRepository;
 import jp.moreslowly.oi.tasks.DealerManager;
@@ -44,7 +46,7 @@ public class RoomServiceImpl implements RoomService {
       room = maybeRoom.get();
     } else {
       if (roomRepository.count() >= RoomLimitation.MAX_ROOM_SIZE) {
-        throw new RuntimeException("Room is full");
+        throw new BadRequestException("Room is full");
       }
       room = Room.builder()
           .id(id)
@@ -67,7 +69,7 @@ public class RoomServiceImpl implements RoomService {
             return !room.getMembers().contains(name);
           }).collect(Collectors.toList());
       if (unusedNames.isEmpty()) {
-        throw new RuntimeException("Nickname is full");
+        throw new BadRequestException("Nickname is full");
       }
       nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
       session.setAttribute(SessionKey.NICKNAME, nickname);
@@ -136,6 +138,21 @@ public class RoomServiceImpl implements RoomService {
         room.setHands6(null);
         room.setHands7(null);
         room.setBets(null);
+        roomRepository.save(room);
+      }
+      return UpdateStatus.UPDATED;
+    });
+  }
+
+  @Override
+  public void bet(BetDto betDto) {
+    dealerManager.updateAndNotify(betDto.getRoomId(), () -> {
+      Room room = roomRepository.findById(betDto.getRoomId()).orElse(null);
+      if (Objects.nonNull(room)) {
+        if (CollectionUtils.isEmpty(room.getBets())) {
+          room.setBets(new ArrayList<>());
+        }
+        room.getBets().add(betDto.toEntity());
         roomRepository.save(room);
       }
       return UpdateStatus.UPDATED;

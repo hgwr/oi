@@ -17,8 +17,10 @@ import org.springframework.web.context.request.async.DeferredResult;
 import jakarta.servlet.http.HttpSession;
 import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.common.SessionKey;
+import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.IdDto;
 import jp.moreslowly.oi.dto.RoomDto;
+import jp.moreslowly.oi.exception.BadRequestException;
 import jp.moreslowly.oi.service.RoomService;
 import lombok.extern.log4j.Log4j2;
 
@@ -60,5 +62,23 @@ public class RoomController {
     UUID.fromString(dto.getId());
 
     roomService.reset(dto.getId());
+  }
+
+  @PostMapping("/bet")
+  public void bet(@RequestBody BetDto dto) {
+    // UUID validation
+    UUID.fromString(dto.getRoomId());
+
+    String sessionRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
+    if (!dto.getRoomId().equals(sessionRoomId)) {
+      throw new BadRequestException("Invalid room id");
+    }
+
+    String sessionNickname = (String) session.getAttribute(SessionKey.NICKNAME);
+    if (!dto.getUserName().equals(sessionNickname)) {
+      throw new BadRequestException("Invalid nickname");
+    }
+
+    roomService.bet(dto);
   }
 }

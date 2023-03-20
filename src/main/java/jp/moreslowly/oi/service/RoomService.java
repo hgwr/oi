@@ -3,6 +3,7 @@ package jp.moreslowly.oi.service;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import jakarta.servlet.http.HttpSession;
+import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.RoomDto;
 
 public interface RoomService {
@@ -12,4 +13,6 @@ public interface RoomService {
   void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult);
 
   void reset(String id);
+
+  void bet(BetDto betDto);
 }

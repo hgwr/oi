@@ -20,4 +20,13 @@ public class BetDto {
         .betAmount(bet.getBetAmount())
         .build();
   }
+
+  public Bet toEntity() {
+    return Bet.builder()
+        .roomId(this.roomId)
+        .userName(this.userName)
+        .handIndex(this.handIndex)
+        .betAmount(this.betAmount)
+        .build();
+  }
 }
