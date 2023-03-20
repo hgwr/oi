@@ -155,7 +155,7 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processDealerTurn(Room room) {
-    log.info("processDealerTurn1");
+    log.info("processDealerTurn");
     LocalDateTime now = LocalDateTime.now();
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC))) {
       return UpdateStatus.NOT_UPDATED;

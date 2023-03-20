@@ -1,6 +1,8 @@
 package jp.moreslowly.oi.dao;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 import jp.moreslowly.oi.models.Card;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -36,21 +39,35 @@ public class Room {
   }
 
   @Id private String id;
-  private List<String> members;
-  private Map<String, Integer> wallets;
-  private List<Card> deck;
-  private List<Card> hands1;
-  private List<Card> hands2;
-  private List<Card> hands3;
-  private List<Card> hands4;
-  private List<Card> hands5;
-  private List<Card> hands6;
-  private List<Card> hands7;
-  private List<Bet> bets;
+  @Builder.Default private List<String> members = new ArrayList<>();
+  @Builder.Default private Map<String, Integer> wallets = new HashMap<>();
+  @Builder.Default private List<Card> deck = new ArrayList<>();
+  @Builder.Default private List<Card> hands1 = new ArrayList<>();
+  @Builder.Default private List<Card> hands2 = new ArrayList<>();
+  @Builder.Default private List<Card> hands3 = new ArrayList<>();
+  @Builder.Default private List<Card> hands4 = new ArrayList<>();
+  @Builder.Default private List<Card> hands5 = new ArrayList<>();
+  @Builder.Default private List<Card> hands6 = new ArrayList<>();
+  @Builder.Default private List<Card> hands7 = new ArrayList<>();
+  @Builder.Default private List<Bet> bets = new ArrayList<>();
   private Status status;
   private LocalDateTime updatedAt;
 
   public Room() {
+    this.status = Status.START;
+  }
+
+  public void reset() {
+    this.deck = new ArrayList<>();
+    this.members = new ArrayList<>();
+    this.hands1 = new ArrayList<>();
+    this.hands2 = new ArrayList<>();
+    this.hands3 = new ArrayList<>();
+    this.hands4 = new ArrayList<>();
+    this.hands5 = new ArrayList<>();
+    this.hands6 = new ArrayList<>();
+    this.hands7 = new ArrayList<>();
+    this.bets = new ArrayList<>();
     this.status = Status.START;
   }
 }

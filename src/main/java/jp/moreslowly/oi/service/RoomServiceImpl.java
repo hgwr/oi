@@ -151,17 +151,7 @@ public class RoomServiceImpl implements RoomService {
     dealerManager.updateAndNotify(id, () -> {
       Room room = roomRepository.findById(id).orElse(null);
       if (Objects.nonNull(room)) {
-        room.setStatus(Status.START);
-        room.setMembers(new ArrayList<>());
-        room.setDeck(null);
-        room.setHands1(null);
-        room.setHands2(null);
-        room.setHands3(null);
-        room.setHands4(null);
-        room.setHands5(null);
-        room.setHands6(null);
-        room.setHands7(null);
-        room.setBets(null);
+        room.reset();
         room.setUpdatedAt(LocalDateTime.now());
         roomRepository.save(room);
       }
