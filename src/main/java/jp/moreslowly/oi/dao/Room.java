@@ -2,6 +2,7 @@ package jp.moreslowly.oi.dao;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -37,6 +38,7 @@ public class Room {
 
   @Id private String id;
   private List<String> members;
+  private Map<String, Integer> wallets;
   private List<Card> deck;
   private List<Card> hands1;
   private List<Card> hands2;

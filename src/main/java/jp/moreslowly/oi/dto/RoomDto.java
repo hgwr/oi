@@ -2,6 +2,7 @@ package jp.moreslowly.oi.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ public class RoomDto {
   private String id;
   private String yourName;
   private List<String> members;
+  private Map<String, Integer> wallets;
   private List<Card> hands1;
   private List<Card> hands2;
   private List<Card> hands3;
@@ -32,6 +34,7 @@ public class RoomDto {
         .id(room.getId())
         .yourName(yourName)
         .members(room.getMembers())
+        .wallets(room.getWallets())
         .hands1(room.getHands1())
         .hands2(room.getHands2())
         .hands3(room.getHands3())

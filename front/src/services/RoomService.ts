@@ -25,4 +25,9 @@ export default class RoomService {
       await new Promise((resolve) => setTimeout(resolve, 500))
     }
   }
+
+  static async bet(roomId: string, userName: string, handIndex: number, betAmount: number): Promise<Room> {
+    const { data } = await axios.post(`/room/bet`, { roomId, userName, handIndex, betAmount })
+    return data
+  }
 }

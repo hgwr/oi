@@ -6,6 +6,7 @@ export interface Room {
   id: string
   yourName: string
   members: string[]
+  wallets: any
   hands1: Card[]
   hands2: Card[]
   hands3: Card[]

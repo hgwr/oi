@@ -1,6 +1,7 @@
 package jp.moreslowly.oi.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,6 +53,7 @@ public class RoomServiceImpl implements RoomService {
           .id(id)
           .status(Status.START)
           .members(new ArrayList<>())
+          .wallets(new HashMap<>())
           .build();
       dealerManager.updateAndNotify(id, () -> {
         roomRepository.save(room);
@@ -105,10 +107,20 @@ public class RoomServiceImpl implements RoomService {
       });
     }
 
+    dealerManager.updateAndNotify(id, () -> {
+      if (Objects.isNull(room.getWallets())) {
+        room.setWallets(new HashMap<>());
+      }
+      room.getWallets().putIfAbsent(nickname, 10000);
+      roomRepository.save(room);
+      return UpdateStatus.UPDATED;
+    });
+
     return RoomDto.fromEntity(room, nickname);
   }
 
-  private ExecutorService runners = Executors.newFixedThreadPool(RoomLimitation.MAX_ROOM_SIZE * RoomLimitation.MAX_MEMBER_SIZE);
+  private ExecutorService runners = Executors
+      .newFixedThreadPool(RoomLimitation.MAX_ROOM_SIZE * RoomLimitation.MAX_MEMBER_SIZE);
 
   @Override
   public void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult) {
@@ -148,13 +160,19 @@ public class RoomServiceImpl implements RoomService {
   public void bet(BetDto betDto) {
     dealerManager.updateAndNotify(betDto.getRoomId(), () -> {
       Room room = roomRepository.findById(betDto.getRoomId()).orElse(null);
-      if (Objects.nonNull(room)) {
-        if (CollectionUtils.isEmpty(room.getBets())) {
-          room.setBets(new ArrayList<>());
-        }
-        room.getBets().add(betDto.toEntity());
-        roomRepository.save(room);
+      if (Objects.isNull(room)) {
+        return UpdateStatus.NOT_UPDATED;
       }
+
+      if (CollectionUtils.isEmpty(room.getBets())) {
+        room.setBets(new ArrayList<>());
+      }
+      Integer wallet = room.getWallets().get(betDto.getUserName());
+      wallet -= betDto.getBetAmount();
+      room.getWallets().put(betDto.getUserName(), wallet);
+      room.getBets().add(betDto.toEntity());
+      roomRepository.save(room);
+
       return UpdateStatus.UPDATED;
     });
   }
