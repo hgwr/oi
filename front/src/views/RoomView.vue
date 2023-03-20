@@ -36,6 +36,10 @@ roomService.subscribeToRoom(roomId, (newRoom: Room) => {
   </div>
 
   <div>
-  {{ room }}
+  {{ room.status }}
+  </div>
+
+  <div v-for="member in room.members" :key="member">
+    {{ member }}
   </div>
 </template>
