@@ -74,7 +74,7 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processShuffle(Room room) {
-    List<Card> deck = Card.generateCardDeck();
+    List<String> deck = Card.generateCardDeck().stream().map(c -> c.toString()).toList();
     room.setDeck(deck);
     room.setStatus(Room.Status.SHUFFLE.next());
     room.setUpdatedAt(LocalDateTime.now());
@@ -83,11 +83,11 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processHandOutCards(Room room) {
-    List<List<Card>> hands = new ArrayList<>();
+    List<List<String>> hands = new ArrayList<>();
     for (int i = 0; i < RoomLimitation.MAX_HAND_OUT_SIZE; i++) {
-      List<Card> hand = new ArrayList<>();
+      List<String> hand = new ArrayList<>();
       for (int j = 0; j < 2; j++) {
-        hand.add(room.getDeck().remove(0));
+        hand.add(room.getDeck().remove(0).toString());
       }
       hands.add(hand);
     }

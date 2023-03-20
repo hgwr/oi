@@ -16,30 +16,48 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public final class Card implements Serializable {
   public enum Suit {
-    SPADE,
-    HEART,
-    DIAMOND,
-    CLUB
+    SPADE("♠️"),
+    HEART("♥️"),
+    DIAMOND("♦️"),
+    CLUB("♣️");
+    private String symbol;
+    private Suit(String symbol) {
+      this.symbol = symbol;
+    }
+    public String toString() {
+      return symbol;
+    }
   }
 
   public enum Rank {
-    ACE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
-    TEN,
-    JACK,
-    QUEEN,
-    KING
+    ACE("A"),
+    TWO("2"),
+    THREE("3"),
+    FOUR("4"),
+    FIVE("5"),
+    SIX("6"),
+    SEVEN("7"),
+    EIGHT("8"),
+    NINE("9"),
+    TEN("10"),
+    JACK("J"),
+    QUEEN("Q"),
+    KING("K");
+    private String rank;
+    private Rank(String rank) {
+      this.rank = rank;
+    }
+    public String toString() {
+      return rank;
+    }
   }
 
   private Suit suit;
   private Rank rank;
+
+  public String toString() {
+    return suit.toString() + rank.toString();
+  }
 
   public static List<Card> generateCardDeck() {
     List<Card> cardDeck = new ArrayList<>();

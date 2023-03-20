@@ -113,4 +113,19 @@ public class RoomServiceImpl implements RoomService {
       deferredResult.setResult(dto);
     });
   }
+
+  @Override
+  public void reset(String id) {
+    dealerManager.updateAndNotify(id, () -> {
+      Room room = roomRepository.findById(id).orElse(null);
+      if (Objects.nonNull(room)) {
+        room.setStatus(Status.START);
+        room.setDeck(null);
+        room.setHands(null);
+        room.setBets(null);
+        roomRepository.save(room);
+      }
+      return UpdateStatus.UPDATED;
+    });
+  }
 }

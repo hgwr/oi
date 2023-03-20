@@ -17,7 +17,7 @@ public class RoomDto {
   private String id;
   private String yourName;
   private List<String> members;
-  private List<List<Card>> hands;
+  private List<List<String>> hands;
   private List<BetDto> bets;
   private Status status;
 

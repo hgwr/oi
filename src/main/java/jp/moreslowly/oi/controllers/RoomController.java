@@ -55,4 +55,12 @@ public class RoomController {
 
     return deferredResult;
   }
+
+  @PostMapping("/reset")
+  public void reset(@RequestBody IdDto dto) {
+    // UUID validation
+    UUID.fromString(dto.getId());
+
+    roomService.reset(dto.getId());
+  }
 }

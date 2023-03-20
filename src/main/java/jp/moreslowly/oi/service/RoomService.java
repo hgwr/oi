@@ -11,4 +11,5 @@ public interface RoomService {
 
   void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult);
 
+  void reset(String id);
 }
