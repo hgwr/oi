@@ -35,6 +35,7 @@ public class DealerManager {
   }
 
   public void waitForUpdating(String roomId, BeNotified proc) {
+    log.info("-- wait for updating...");
     Object lock = getLock(roomId);
     synchronized (lock) {
       try {
@@ -42,6 +43,7 @@ public class DealerManager {
       } catch (InterruptedException e) {
         // do nothing
       }
+      log.info("-- call afterUpdate()");
       proc.afterUpdate();
     }
   }

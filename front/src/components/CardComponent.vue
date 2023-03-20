@@ -52,7 +52,7 @@ const isTen = (rank: RankType) => {
 }
 
 .ten {
-  padding-bottom: 10px;
+  padding-bottom: 12.5px;
   display: inline-block;
   font-size: 25px;
   -webkit-transform: scale(1, 2);

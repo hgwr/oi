@@ -49,9 +49,7 @@ public class RoomController {
     String yourName = session.getAttribute(SessionKey.NICKNAME).toString();
 
     DeferredResult<RoomDto> deferredResult = new DeferredResult<>();
-    CompletableFuture.runAsync(() -> {
-      roomService.subscribe(dto.getId(), yourName, deferredResult);
-    });
+    roomService.subscribe(dto.getId(), yourName, deferredResult);
 
     return deferredResult;
   }

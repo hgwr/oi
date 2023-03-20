@@ -63,6 +63,7 @@ public class DealerTask implements Runnable {
   private final int GENERAL_TIMEOUT_SEC = 30;
 
   private UpdateStatus processStart(Room room) {
+    log.info("processStart: room id {}", room.getId());
     room.setBets(null);
     room.setHands1(null);
     room.setHands2(null);
@@ -79,6 +80,7 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processShuffle(Room room) {
+    log.info("processShuffle");
     LocalDateTime now = LocalDateTime.now();
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC))) {
       return UpdateStatus.NOT_UPDATED;
@@ -93,6 +95,7 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processHandOutCards(Room room) {
+    log.info("processHandOutCards");
     List<List<Card>> hands = new ArrayList<>();
     for (int i = 0; i < RoomLimitation.MAX_HAND_OUT_SIZE; i++) {
       List<Card> hand = new ArrayList<>();
@@ -116,6 +119,7 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processWaitToBet(Room room) {
+    log.info("processWaitToBet");
     LocalDateTime now = LocalDateTime.now();
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
       return UpdateStatus.NOT_UPDATED;
@@ -128,6 +132,7 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processWaitToRequest(Room room) {
+    log.info("processWaitToRequest");
     room.setStatus(Room.Status.START);
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
@@ -135,18 +140,22 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processDealerTurn1(Room room) {
+    log.info("processDealerTurn1");
     return UpdateStatus.NOT_UPDATED;
   }
 
   private UpdateStatus processDealerTurn2(Room room) {
+    log.info("processDealerTurn2");
     return UpdateStatus.NOT_UPDATED;
   }
 
   private UpdateStatus processLiquidation(Room room) {
+    log.info("processLiquidation");
     return UpdateStatus.NOT_UPDATED;
   }
 
   private UpdateStatus processEnd(Room room) {
+    log.info("processEnd");
     return UpdateStatus.NOT_UPDATED;
   }
 }

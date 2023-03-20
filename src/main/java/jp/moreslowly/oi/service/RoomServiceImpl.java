@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -105,12 +106,18 @@ public class RoomServiceImpl implements RoomService {
     return RoomDto.fromEntity(room, nickname);
   }
 
+  private ExecutorService runners = Executors.newFixedThreadPool(RoomLimitation.MAX_ROOM_SIZE * RoomLimitation.MAX_MEMBER_SIZE);
+
   @Override
   public void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult) {
-    dealerManager.waitForUpdating(id, () -> {
-      Room room = roomRepository.findById(id).orElse(null);
-      RoomDto dto = Objects.isNull(room) ? null : RoomDto.fromEntity(room, yourName);
-      deferredResult.setResult(dto);
+    log.info("## subscribed");
+    runners.execute(() -> {
+      log.info("### runAsync");
+      dealerManager.waitForUpdating(id, () -> {
+        Room room = roomRepository.findById(id).orElse(null);
+        RoomDto dto = Objects.isNull(room) ? null : RoomDto.fromEntity(room, yourName);
+        deferredResult.setResult(dto);
+      });
     });
   }
 
