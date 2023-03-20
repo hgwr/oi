@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.repository.RoomRepository;
+import jp.moreslowly.oi.service.CardService;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -31,6 +32,9 @@ public class DealerManager {
   @Autowired
   private RoomRepository roomRepository;
 
+  @Autowired
+  private CardService cardService;
+
   private ConcurrentHashMap<String, Object> lockMap = new ConcurrentHashMap<>();
 
   private ExecutorService runners = Executors
@@ -38,6 +42,10 @@ public class DealerManager {
 
   private Object getLock(String roomId) {
     return lockMap.computeIfAbsent(roomId, k -> new Object());
+  }
+
+  public CardService getCardService() {
+    return cardService;
   }
 
   public void waitForUpdating(String roomId, BeNotified proc) {

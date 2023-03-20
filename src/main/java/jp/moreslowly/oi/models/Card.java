@@ -50,6 +50,19 @@ public final class Card implements Serializable {
     public String toString() {
       return rank;
     }
+    public int getPoint() {
+      if (this == ACE) {
+        return 1;
+      } else if (this == JACK) {
+        return 11;
+      } else if (this == QUEEN) {
+        return 12;
+      } else if (this == KING) {
+        return 13;
+      } else {
+        return Integer.parseInt(rank);
+      }
+    }
   }
 
   private Suit suit;

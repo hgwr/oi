@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
 import jp.moreslowly.oi.common.RoomLimitation;
+import jp.moreslowly.oi.dao.Bet;
 import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.models.Card;
 import jp.moreslowly.oi.repository.RoomRepository;
@@ -135,11 +136,11 @@ public class DealerTask implements Runnable {
   private UpdateStatus processWaitToRequest(Room room) {
     log.info("processWaitToRequest");
     LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(LONG_TIMEOUT_SEC))) {
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
       return UpdateStatus.NOT_UPDATED;
     }
 
-    room.setStatus(Room.Status.START);
+    room.setStatus(Room.Status.WAIT_TO_REQUEST.next());
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
@@ -147,21 +148,95 @@ public class DealerTask implements Runnable {
 
   private UpdateStatus processDealerTurn1(Room room) {
     log.info("processDealerTurn1");
-    return UpdateStatus.NOT_UPDATED;
+    LocalDateTime now = LocalDateTime.now();
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC))) {
+      return UpdateStatus.NOT_UPDATED;
+    }
+
+    List<Card> parentCards = room.getHands7();
+    int point = manager.getCardService().evaluate(parentCards);
+    int threshold = Math.random() < 0.5 ? 5 : 6;
+    if (point <= threshold) {
+      parentCards.add(room.getDeck().remove(0));
+      room.setHands7(parentCards);
+    }
+
+    room.setStatus(Room.Status.DEALER_TURN_1.next());
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processDealerTurn2(Room room) {
     log.info("processDealerTurn2");
-    return UpdateStatus.NOT_UPDATED;
+
+    room.setStatus(Room.Status.DEALER_TURN_2.next());
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processLiquidation(Room room) {
     log.info("processLiquidation");
-    return UpdateStatus.NOT_UPDATED;
+
+    List<Card> parentCards = room.getHands7();
+    int parentPoint = manager.getCardService().evaluate(parentCards);
+    room.getBets().stream().forEach(bet -> {
+      List<Card> hands = getHandsAt(room, bet.getHandIndex());
+      int point = manager.getCardService().evaluate(hands);
+      if (point > parentPoint) {
+        bet.setResult(Bet.Result.WIN);
+        int betAmount = bet.getBetAmount();
+        int wallet = room.getWallets().get(bet.getUserName());
+        room.getWallets().put(bet.getUserName(), wallet + betAmount * 2);
+      } else if (point == parentPoint) {
+        bet.setResult(Bet.Result.DRAW);
+        int betAmount = bet.getBetAmount();
+        int wallet = room.getWallets().get(bet.getUserName());
+        room.getWallets().put(bet.getUserName(), wallet + betAmount);
+      } else {
+        bet.setResult(Bet.Result.LOSE);
+      }
+    });
+
+    room.setStatus(Room.Status.LIQUIDATION.next());
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processEnd(Room room) {
     log.info("processEnd");
-    return UpdateStatus.NOT_UPDATED;
+
+    LocalDateTime now = LocalDateTime.now();
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
+      return UpdateStatus.NOT_UPDATED;
+    }
+
+    room.setStatus(Room.Status.END.next());
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
+  }
+
+  private List<Card> getHandsAt(Room room, int index) {
+    switch (index) {
+      case 1:
+        return room.getHands1();
+      case 2:
+        return room.getHands2();
+      case 3:
+        return room.getHands3();
+      case 4:
+        return room.getHands4();
+      case 5:
+        return room.getHands5();
+      case 6:
+        return room.getHands6();
+      case 7:
+        return room.getHands7();
+      default:
+        return null;
+    }
   }
 }

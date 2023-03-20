@@ -3,4 +3,5 @@ export interface Bet {
   userName: string
   handIndex: number
   betAmount: number
+  result: string
 }

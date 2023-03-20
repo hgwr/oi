@@ -130,6 +130,9 @@ const requestCard = async (handIndex: number) => {
           :key="bet.userName"
         >
           {{ bet.betAmount }}
+          <span v-if="bet.result === 'WIN'">勝ち</span>
+          <span v-if="bet.result === 'LOSE'">負け</span>
+          <span v-if="bet.result === 'DRAW'">引き分け</span>
         </div>
         <button
           class="requestCard"
@@ -157,6 +160,9 @@ const requestCard = async (handIndex: number) => {
           :key="bet.userName"
         >
           {{ bet.betAmount }}
+          <span v-if="bet.result === 'WIN'">勝ち</span>
+          <span v-if="bet.result === 'LOSE'">負け</span>
+          <span v-if="bet.result === 'DRAW'">引き分け</span>
         </div>
       </template>
     </div>

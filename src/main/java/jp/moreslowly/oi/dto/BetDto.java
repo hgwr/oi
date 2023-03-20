@@ -15,6 +15,7 @@ public class BetDto {
   private String userName;
   private Integer handIndex;
   private Integer betAmount;
+  private Bet.Result result;
 
   public static BetDto fromEntity(Bet bet) {
     return BetDto.builder()
@@ -22,6 +23,7 @@ public class BetDto {
         .userName(bet.getUserName())
         .handIndex(bet.getHandIndex())
         .betAmount(bet.getBetAmount())
+        .result(bet.getResult())
         .build();
   }
 
@@ -31,6 +33,7 @@ public class BetDto {
         .userName(this.userName)
         .handIndex(this.handIndex)
         .betAmount(this.betAmount)
+        .result(this.result)
         .build();
   }
 }
