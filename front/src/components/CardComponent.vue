@@ -52,12 +52,12 @@ const isTen = (rank: RankType) => {
 }
 
 .ten {
-  padding-bottom: 12.5px;
+  padding-bottom: 10px;
   display: inline-block;
   font-size: 25px;
-  -webkit-transform: scale(1, 2);
-  -moz-transform: scale(1, 2);
-  transform: scale(1, 2);
+  -webkit-transform: scale(1, 1.8);
+  -moz-transform: scale(1, 1.8);
+  transform: scale(1, 1.8);
 }
 
 </style>

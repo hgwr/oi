@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import roomService from '../services/RoomService'
-import { Status } from '../types/Status'
+import { Status, StatusType } from '../types/Status'
 import { Room } from '../types/Room'
 import { Bet } from '../types/Bet'
 import CardComponent from '../components/CardComponent.vue'
@@ -123,7 +123,7 @@ const requestOneCard = async (handIndex: number) => {
         :key="card.suit + ' ' + card.rank"
         :card="card"
       />
-      <div v-if="myBetsOf(index + 1).length > 0">
+      <template v-if="myBetsOf(index + 1).length > 0">
         <div
           class="myBetAmount"
           v-for="bet in myBetsOf(index + 1)"
@@ -132,13 +132,14 @@ const requestOneCard = async (handIndex: number) => {
           {{ bet.betAmount }}
         </div>
         <button
+          class="requestOneCard"
           v-if="room.status === Status.WAIT_TO_REQUEST"
           @click="requestOneCard(index + 1)"
         >
           もう一枚引く
         </button>
-      </div>
-      <div v-else>
+      </template>
+      <template v-else>
         <template v-if="index + 1 != 7">
           <BetButton
             v-if="room.status === Status.WAIT_TO_BET"
@@ -148,8 +149,8 @@ const requestOneCard = async (handIndex: number) => {
             :handIndex="index + 1"
           />
         </template>
-      </div>
-      <div v-if="betsOf(index + 1).length > 0">
+      </template>
+      <template v-if="betsOf(index + 1).length > 0">
         <div
           class="betAmount"
           v-for="bet in betsOf(index + 1)"
@@ -157,7 +158,7 @@ const requestOneCard = async (handIndex: number) => {
         >
           {{ bet.betAmount }}
         </div>
-      </div>
+      </template>
     </div>
   </div>
 
@@ -176,12 +177,13 @@ const requestOneCard = async (handIndex: number) => {
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-basis: min-content;
 }
 
 .myBetAmount {
   color: white;
   background-color: black;
-  font-size: 20px;
+  font-size: 16px;
   padding: 5px;
   border: 1px solid black;
   border-radius: 0px;
@@ -189,10 +191,20 @@ const requestOneCard = async (handIndex: number) => {
 }
 
 .betAmount {
-  font-size: 20px;
+  font-size: 16px;
   padding: 5px;
   border: 1px solid black;
   border-radius: 0px;
   margin: 5px;
+}
+
+.requestOneCard {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  margin-left: 10px;
 }
 </style>
