@@ -23,8 +23,7 @@ public class Room {
     HAND_OUT_CARDS,
     WAIT_TO_BET,
     WAIT_TO_REQUEST,
-    DEALER_TURN_1,
-    DEALER_TURN_2,
+    DEALER_TURN,
     LIQUIDATION,
     END;
     private static final Status[] values = values();

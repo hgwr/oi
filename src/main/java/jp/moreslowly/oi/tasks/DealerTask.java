@@ -48,10 +48,8 @@ public class DealerTask implements Runnable {
           return processWaitToBet(room);
         case WAIT_TO_REQUEST:
           return processWaitToRequest(room);
-        case DEALER_TURN_1:
-          return processDealerTurn1(room);
-        case DEALER_TURN_2:
-          return processDealerTurn2(room);
+        case DEALER_TURN:
+          return processDealerTurn(room);
         case LIQUIDATION:
           return processLiquidation(room);
         case END:
@@ -108,7 +106,7 @@ public class DealerTask implements Runnable {
       }
       hands.add(hand);
     }
-    log.info("processHandOutCards: hands={}", hands);
+
     room.setHands1(hands.get(0));
     room.setHands2(hands.get(1));
     room.setHands3(hands.get(2));
@@ -148,7 +146,7 @@ public class DealerTask implements Runnable {
     return UpdateStatus.UPDATED;
   }
 
-  private UpdateStatus processDealerTurn1(Room room) {
+  private UpdateStatus processDealerTurn(Room room) {
     log.info("processDealerTurn1");
     LocalDateTime now = LocalDateTime.now();
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC))) {
@@ -163,16 +161,7 @@ public class DealerTask implements Runnable {
       room.setHands7(parentCards);
     }
 
-    room.setStatus(Room.Status.DEALER_TURN_1.next());
-    room.setUpdatedAt(LocalDateTime.now());
-    roomRepository.save(room);
-    return UpdateStatus.UPDATED;
-  }
-
-  private UpdateStatus processDealerTurn2(Room room) {
-    log.info("processDealerTurn2");
-
-    room.setStatus(Room.Status.DEALER_TURN_2.next());
+    room.setStatus(Room.Status.DEALER_TURN.next());
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
