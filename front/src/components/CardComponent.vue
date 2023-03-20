@@ -10,6 +10,10 @@ const isRed = (suit: SuitType) => {
   return suit === Suit.DIAMOND || suit === Suit.HEART
 }
 
+const isTen = (rank: RankType) => {
+  return rank === Rank.TEN
+}
+
 </script>
 
 <template>
@@ -20,7 +24,9 @@ const isRed = (suit: SuitType) => {
       </span>
     </span>
     <span class="rank">
-      {{ PrintableRank.get(card.rank) }}
+      <span :class="{ ten: isTen(card.rank) }">
+        {{ PrintableRank.get(card.rank) }}
+      </span>
     </span>
   </span>
 </template>
@@ -43,6 +49,15 @@ const isRed = (suit: SuitType) => {
 
 .rank {
   padding: 0 0 0 5px;
+}
+
+.ten {
+  padding-bottom: 10px;
+  display: inline-block;
+  font-size: 25px;
+  -webkit-transform: scale(1, 2);
+  -moz-transform: scale(1, 2);
+  transform: scale(1, 2);
 }
 
 </style>
