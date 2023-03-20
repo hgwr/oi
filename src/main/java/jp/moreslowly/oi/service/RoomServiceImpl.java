@@ -67,16 +67,10 @@ public class RoomServiceImpl implements RoomService {
 
   @Override
   public void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult) {
-    Object lock = dealerManager.getLock(id);
-    synchronized (lock) {
-      try {
-        lock.wait();
-      } catch (InterruptedException e) {
-        // do nothing
-      }
-    }
-    Room room = roomRepository.findById(id).orElse(null);
-    RoomDto dto = Objects.isNull(room) ? null : RoomDto.fromEntity(room, yourName);
-    deferredResult.setResult(dto);
+    dealerManager.waitForUpdating(id, () -> {
+      Room room = roomRepository.findById(id).orElse(null);
+      RoomDto dto = Objects.isNull(room) ? null : RoomDto.fromEntity(room, yourName);
+      deferredResult.setResult(dto);
+    });
   }
 }

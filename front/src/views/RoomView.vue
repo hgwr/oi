@@ -20,7 +20,7 @@ const fetch = async () => {
 fetch()
 
 roomService.subscribeToRoom(roomId, (newRoom: Room) => {
-  // console.log('newRoom: ', newRoom)
+  console.log('newRoom: ', newRoom)
   if (newRoom) {
     room.value = newRoom
   }

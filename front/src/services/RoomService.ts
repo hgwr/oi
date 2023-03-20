@@ -13,18 +13,16 @@ export default class RoomService {
       try {
         const response = await axios.post(`/room/subscribe`, { id: roomId })
 
-        if (response.status == 502) {
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        } else if (response.status != 200) {
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        } else {
+        if (response.status == 200) {
           let room = response.data
           callback(room)
-          await new Promise((resolve) => setTimeout(resolve, 100))
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 1000))
         }
       } catch (error) {
         await new Promise((resolve) => setTimeout(resolve, 1000))
       }
+      await new Promise((resolve) => setTimeout(resolve, 500))
     }
   }
 }

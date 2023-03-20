@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.repository.RoomRepository;
+import jp.moreslowly.oi.tasks.DealerManager.UpdateStatus;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -23,17 +24,17 @@ public class DealerTask implements Runnable {
 
   @Override
   public void run() {
-    Object lock = manager.getLock(roomId);
-    synchronized (lock) {
+    manager.updateAndNotify(roomId, () -> {
       Room room = roomRepository.findById(roomId).orElse(null);
       if (Objects.isNull(room)) {
-        return;
+        return UpdateStatus.NOT_UPDATED;
       }
 
       LocalDateTime now = LocalDateTime.now();
       if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(5))) {
-        return;
+        return UpdateStatus.NOT_UPDATED;
       }
+
       if (Objects.isNull(room.getStatus())) {
         room.setStatus(Room.Status.START);
       } else {
@@ -42,8 +43,7 @@ public class DealerTask implements Runnable {
       room.setUpdatedAt(now);
       roomRepository.save(room);
       log.info("DealerTask: " + room.getId() + " " + room.getStatus());
-
-      lock.notifyAll();
-    }
+      return UpdateStatus.UPDATED;
+    });
   }
 }
