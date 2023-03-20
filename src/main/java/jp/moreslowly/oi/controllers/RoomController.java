@@ -1,5 +1,6 @@
 package jp.moreslowly.oi.controllers;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -50,7 +51,7 @@ public class RoomController {
     UUID.fromString(dto.getId());
 
     String yourName = (String) session.getAttribute(SessionKey.NICKNAME);
-    if (yourName == null) {
+    if (Objects.isNull(yourName)) {
       throw new BadRequestException("Invalid nickname");
     }
 

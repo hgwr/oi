@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.util.CollectionUtils;
@@ -32,10 +33,11 @@ public class DealerTask implements Runnable {
   @Override
   public void run() {
     manager.updateAndNotify(roomId, () -> {
-      Room room = roomRepository.findById(roomId).orElse(null);
-      if (Objects.isNull(room)) {
+      Optional<Room> maybeRoom = roomRepository.findById(roomId);
+      if (!maybeRoom.isPresent()) {
         return UpdateStatus.NOT_UPDATED;
       }
+      Room room = maybeRoom.get();
 
       switch (room.getStatus()) {
         case START:
@@ -66,15 +68,7 @@ public class DealerTask implements Runnable {
 
   private UpdateStatus processStart(Room room) {
     log.info("processStart: room id {}", room.getId());
-    room.setBets(null);
-    room.setHands1(null);
-    room.setHands2(null);
-    room.setHands3(null);
-    room.setHands4(null);
-    room.setHands5(null);
-    room.setHands6(null);
-    room.setHands7(null);
-    room.setDeck(null);
+    room.reset();
     room.setStatus(Room.Status.START.next());
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
@@ -183,7 +177,7 @@ public class DealerTask implements Runnable {
     List<Bet> bets = room.getBets();
     if (!CollectionUtils.isEmpty(bets)) {
       room.getBets().stream().forEach(bet -> {
-        List<Card> hands = getHandsAt(room, bet.getHandIndex());
+        List<Card> hands = room.getHandsAt(bet.getHandIndex());
         int point = manager.getCardService().evaluate(hands);
         if (point > parentPoint) {
           bet.setResult(Bet.Result.WIN);
@@ -224,26 +218,5 @@ public class DealerTask implements Runnable {
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
-  }
-
-  private List<Card> getHandsAt(Room room, int index) {
-    switch (index) {
-      case 1:
-        return room.getHands1();
-      case 2:
-        return room.getHands2();
-      case 3:
-        return room.getHands3();
-      case 4:
-        return room.getHands4();
-      case 5:
-        return room.getHands5();
-      case 6:
-        return room.getHands6();
-      case 7:
-        return room.getHands7();
-      default:
-        return null;
-    }
   }
 }

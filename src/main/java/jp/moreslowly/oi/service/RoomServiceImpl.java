@@ -139,8 +139,9 @@ public class RoomServiceImpl implements RoomService {
     runners.execute(() -> {
       log.info("### runAsync");
       dealerManager.waitForUpdating(id, () -> {
-        Room room = roomRepository.findById(id).orElse(null);
-        RoomDto dto = Objects.isNull(room) ? null : RoomDto.fromEntity(room, yourName);
+        Room room = roomRepository.findById(id).orElseThrow(
+            () -> new BadRequestException("Room is not found"));
+        RoomDto dto = RoomDto.fromEntity(room, yourName);
         deferredResult.setResult(dto);
       });
     });
@@ -149,12 +150,10 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public void reset(String id) {
     dealerManager.updateAndNotify(id, () -> {
-      Room room = roomRepository.findById(id).orElse(null);
-      if (Objects.nonNull(room)) {
-        room.reset();
-        room.setUpdatedAt(LocalDateTime.now());
-        roomRepository.save(room);
-      }
+      Room room = roomRepository.findById(id).orElseThrow(() -> new BadRequestException("Room is not found"));
+      room.reset();
+      room.setUpdatedAt(LocalDateTime.now());
+      roomRepository.save(room);
       return UpdateStatus.UPDATED;
     });
   }
@@ -162,10 +161,11 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public void bet(BetDto betDto) {
     dealerManager.updateAndNotify(betDto.getRoomId(), () -> {
-      Room room = roomRepository.findById(betDto.getRoomId()).orElse(null);
-      if (Objects.isNull(room)) {
+      Optional<Room> maybeRoom = roomRepository.findById(betDto.getRoomId());
+      if (!maybeRoom.isPresent()) {
         return UpdateStatus.NOT_UPDATED;
       }
+      Room room = maybeRoom.get();
 
       if (CollectionUtils.isEmpty(room.getBets())) {
         room.setBets(new ArrayList<>());
@@ -183,10 +183,11 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public void requestCard(RequestCardDto requestOneMoreDto) {
     dealerManager.updateAndNotify(requestOneMoreDto.getRoomId(), () -> {
-      Room room = roomRepository.findById(requestOneMoreDto.getRoomId()).orElse(null);
-      if (Objects.isNull(room)) {
+      Optional<Room> maybeRoom = roomRepository.findById(requestOneMoreDto.getRoomId());
+      if (!maybeRoom.isPresent()) {
         return UpdateStatus.NOT_UPDATED;
       }
+      Room room = maybeRoom.get();
 
       if (!room.getMembers().contains(requestOneMoreDto.getUserName())) {
         throw new BadRequestException("You are not member of this room");

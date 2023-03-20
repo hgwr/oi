@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -59,7 +60,9 @@ public class Room {
 
   public void reset() {
     this.deck = new ArrayList<>();
-    this.members = new ArrayList<>();
+    if (Objects.isNull(this.members)) {
+      this.members = new ArrayList<>();
+    }
     this.hands1 = new ArrayList<>();
     this.hands2 = new ArrayList<>();
     this.hands3 = new ArrayList<>();
@@ -69,5 +72,54 @@ public class Room {
     this.hands7 = new ArrayList<>();
     this.bets = new ArrayList<>();
     this.status = Status.START;
+  }
+
+  public List<Card> getHandsAt(int index) {
+    switch (index) {
+      case 1:
+        return getHands1();
+      case 2:
+        return getHands2();
+      case 3:
+        return getHands3();
+      case 4:
+        return getHands4();
+      case 5:
+        return getHands5();
+      case 6:
+        return getHands6();
+      case 7:
+        return getHands7();
+      default:
+        throw new IllegalArgumentException("index must be 1 to 7");
+    }
+  }
+
+  public void setHandsAt(int index, List<Card> hands) {
+    switch (index) {
+      case 1:
+        setHands1(hands);
+        break;
+      case 2:
+        setHands2(hands);
+        break;
+      case 3:
+        setHands3(hands);
+        break;
+      case 4:
+        setHands4(hands);
+        break;
+      case 5:
+        setHands5(hands);
+        break;
+      case 6:
+        setHands6(hands);
+        break;
+      case 7:
+        setHands7(hands);
+        break;
+      default:
+        throw new IllegalArgumentException("index must be 1 to 7");
+    }
   }
 }
