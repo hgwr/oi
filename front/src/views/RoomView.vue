@@ -18,6 +18,7 @@ const roomId = route.query.id as string
 
 let room = ref<Room>({} as Room)
 let wallet = ref<number>(0)
+let selectedHandIndex = ref<number>(0)
 let isDisplayBetDialog = ref<boolean>(false)
 
 const fetch = async () => {
@@ -27,20 +28,19 @@ fetch()
 
 roomService.subscribeToRoom(roomId, (newRoom: Room) => {
   if (newRoom) {
-    console.log('newRoom: ', newRoom)
     room.value = newRoom
-    console.log(room.value.wallets)
     wallet.value = room.value.wallets[room.value.yourName] || 0
   }
 })
 
 const bet = async (roomId: string, userName: string, handIndex: number) => {
-  console.log(roomId, userName, handIndex)
+  console.log('bet: ', roomId, userName, handIndex)
+  selectedHandIndex.value = handIndex
   isDisplayBetDialog.value = true
 }
 
 const betComplete = async (roomId: string, userName: string, handIndex: number, betAmount: number) => {
-  console.log(roomId, userName, handIndex, betAmount)
+  console.log('betComplete: ', roomId, userName, handIndex, betAmount)
   await roomService.bet(roomId, userName, handIndex, betAmount)
   isDisplayBetDialog.value = false
 }
@@ -62,6 +62,32 @@ const myBetsOf = (handIndex: number) => {
   }
   return []
 }
+
+const roomHands = () => {
+  let returnValue = []
+  if (room.value.hands1) {
+    returnValue.push(room.value.hands1)
+  }
+  if (room.value.hands2) {
+    returnValue.push(room.value.hands2)
+  }
+  if (room.value.hands3) {
+    returnValue.push(room.value.hands3)
+  }
+  if (room.value.hands4) {
+    returnValue.push(room.value.hands4)
+  }
+  if (room.value.hands5) {
+    returnValue.push(room.value.hands5)
+  }
+  if (room.value.hands6) {
+    returnValue.push(room.value.hands6)
+  }
+  if (room.value.hands7) {
+    returnValue.push(room.value.hands7)
+  }
+  return returnValue
+}
 </script>
 
 <template>
@@ -80,20 +106,20 @@ const myBetsOf = (handIndex: number) => {
     {{ member }}
   </div>
 
-  <div>
+  <div class="desk">
     <div
       class="handRow"
-      v-if="room.hands1"
+      v-for="(hands, index) in roomHands()"
     >
       <CardComponent
-        v-for="card in room.hands1"
+        v-for="card in hands"
         :key="card.suit + ' ' + card.rank"
         :card="card"
       />
-      <div v-if="myBetsOf(1).length > 0">
+      <div v-if="myBetsOf(index + 1).length > 0">
         <div
           class="betAmount"
-          v-for="bet in myBetsOf(1)"
+          v-for="bet in myBetsOf(index + 1)"
           :key="bet.userName"
         >
           {{ bet.betAmount }}
@@ -104,60 +130,18 @@ const myBetsOf = (handIndex: number) => {
           @bet="bet"
           :roomId="roomId"
           :userName="room.yourName"
-          :handIndex="1"
+          :handIndex="index + 1"
         />
       </div>
-      <div v-if="betsOf(1).length > 0">
+      <div v-if="betsOf(index + 1).length > 0">
         <div
           class="betAmount"
-          v-for="bet in betsOf(1)"
+          v-for="bet in betsOf(index + 1)"
           :key="bet.userName"
         >
           {{ bet.betAmount }}
         </div>
       </div>
-    </div>
-    <div>
-      <CardComponent
-        v-for="card in room.hands2"
-        :key="card.suit + ' ' + card.rank"
-        :card="card"
-      />
-    </div>
-    <div>
-      <CardComponent
-        v-for="card in room.hands3"
-        :key="card.suit + ' ' + card.rank"
-        :card="card"
-      />
-    </div>
-    <div>
-      <CardComponent
-        v-for="card in room.hands4"
-        :key="card.suit + ' ' + card.rank"
-        :card="card"
-      />
-    </div>
-    <div>
-      <CardComponent
-        v-for="card in room.hands5"
-        :key="card.suit + ' ' + card.rank"
-        :card="card"
-      />
-    </div>
-    <div>
-      <CardComponent
-        v-for="card in room.hands6"
-        :key="card.suit + ' ' + card.rank"
-        :card="card"
-      />
-    </div>
-    <div>
-      <CardComponent
-        v-for="card in room.hands7"
-        :key="card.suit + ' ' + card.rank"
-        :card="card"
-      />
     </div>
   </div>
 
@@ -165,7 +149,7 @@ const myBetsOf = (handIndex: number) => {
     v-if="isDisplayBetDialog"
     :roomId="roomId"
     :userName="room.yourName"
-    :handIndex="1"
+    :handIndex="selectedHandIndex"
     @closeBetDialog="closeBetDialog"
     @bet="betComplete"
   />

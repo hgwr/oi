@@ -18,7 +18,7 @@ const bet = () => {
 </script>
 
 <template>
-  <button @click="bet" class="betButton">ここに賭ける</button>
+  <button @click="bet" class="betButton">賭ける</button>
 </template>
 
 <style scoped>
@@ -30,6 +30,7 @@ const bet = () => {
   border: 1px solid #ccc;
   background-color: #fff;
   cursor: pointer;
+  margin-left: 10px;
 }
 
 </style>
