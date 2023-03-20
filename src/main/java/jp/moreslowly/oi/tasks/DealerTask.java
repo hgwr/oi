@@ -1,10 +1,14 @@
 package jp.moreslowly.oi.tasks;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
+import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.dao.Room;
+import jp.moreslowly.oi.models.Card;
 import jp.moreslowly.oi.repository.RoomRepository;
 import jp.moreslowly.oi.tasks.DealerManager.UpdateStatus;
 import lombok.extern.log4j.Log4j2;
@@ -55,7 +59,7 @@ public class DealerTask implements Runnable {
     });
   }
 
-  private final int GENERAL_TIMEOUT_SEC = 30;
+  private final int GENERAL_TIMEOUT_SEC = 5;
 
   private UpdateStatus processStart(Room room) {
     LocalDateTime now = LocalDateTime.now();
@@ -70,15 +74,36 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processShuffle(Room room) {
-    return UpdateStatus.NOT_UPDATED;
+    List<Card> deck = Card.generateCardDeck();
+    room.setDeck(deck);
+    room.setStatus(Room.Status.SHUFFLE.next());
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processHandOutCards(Room room) {
-    return UpdateStatus.NOT_UPDATED;
+    List<List<Card>> hands = new ArrayList<>();
+    for (int i = 0; i < RoomLimitation.MAX_HAND_OUT_SIZE; i++) {
+      List<Card> hand = new ArrayList<>();
+      for (int j = 0; j < 2; j++) {
+        hand.add(room.getDeck().remove(0));
+      }
+      hands.add(hand);
+    }
+    log.info("processHandOutCards: hands={}", hands);
+    room.setHands(hands);
+    room.setStatus(Room.Status.HAND_OUT_CARDS.next());
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processWaitToBet(Room room) {
-    return UpdateStatus.NOT_UPDATED;
+    room.setStatus(Room.Status.START);
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processWaitToRequest(Room room) {

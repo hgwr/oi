@@ -15,12 +15,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import jakarta.servlet.http.HttpSession;
-import jp.moreslowly.oi.common.Nickname;
 import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.common.SessionKey;
 import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.dao.Room.Status;
 import jp.moreslowly.oi.dto.RoomDto;
+import jp.moreslowly.oi.models.Nickname;
 import jp.moreslowly.oi.repository.RoomRepository;
 import jp.moreslowly.oi.tasks.DealerManager;
 import jp.moreslowly.oi.tasks.DealerManager.UpdateStatus;

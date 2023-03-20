@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import jp.moreslowly.oi.models.Card;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -36,7 +37,8 @@ public class Room {
 
   @Id private String id;
   private List<String> members;
-  private List<List<String>> hands;
+  private List<Card> deck;
+  private List<List<Card>> hands;
   private List<Bet> bets;
   private Status status;
   private LocalDateTime updatedAt;

@@ -1,4 +1,4 @@
-package jp.moreslowly.oi.common;
+package jp.moreslowly.oi.models;
 
 import java.util.Arrays;
 import java.util.List;
