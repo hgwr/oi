@@ -59,21 +59,31 @@ public class DealerTask implements Runnable {
     });
   }
 
-  private final int GENERAL_TIMEOUT_SEC = 5;
+  private final int SHORT_TIMEOUT_SEC = 5;
+  private final int GENERAL_TIMEOUT_SEC = 30;
 
   private UpdateStatus processStart(Room room) {
-    LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
-      return UpdateStatus.NOT_UPDATED;
-    }
-
+    room.setBets(null);
+    room.setHands1(null);
+    room.setHands2(null);
+    room.setHands3(null);
+    room.setHands4(null);
+    room.setHands5(null);
+    room.setHands6(null);
+    room.setHands7(null);
+    room.setDeck(null);
     room.setStatus(Room.Status.START.next());
-    room.setUpdatedAt(now);
+    room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processShuffle(Room room) {
+    LocalDateTime now = LocalDateTime.now();
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC))) {
+      return UpdateStatus.NOT_UPDATED;
+    }
+
     List<Card> deck = Card.generateCardDeck();
     room.setDeck(deck);
     room.setStatus(Room.Status.SHUFFLE.next());
@@ -106,14 +116,22 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processWaitToBet(Room room) {
-    room.setStatus(Room.Status.START);
+    LocalDateTime now = LocalDateTime.now();
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
+      return UpdateStatus.NOT_UPDATED;
+    }
+
+    room.setStatus(Room.Status.WAIT_TO_BET.next());
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processWaitToRequest(Room room) {
-    return UpdateStatus.NOT_UPDATED;
+    room.setStatus(Room.Status.START);
+    room.setUpdatedAt(LocalDateTime.now());
+    roomRepository.save(room);
+    return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processDealerTurn1(Room room) {
