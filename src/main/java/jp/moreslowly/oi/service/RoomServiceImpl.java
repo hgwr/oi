@@ -35,7 +35,7 @@ public class RoomServiceImpl implements RoomService {
   private DealerManager dealerManager;
 
   @Override
-  public RoomDto getRoomById(HttpSession session, String id) {
+  public RoomDto enterRoom(HttpSession session, String id) {
     Optional<Room> maybeRoom = roomRepository.findById(id);
     Room room;
     if (maybeRoom.isPresent()) {
@@ -67,7 +67,6 @@ public class RoomServiceImpl implements RoomService {
 
   @Override
   public void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult) {
-    log.info("subscribe room: " + id);
     Object lock = dealerManager.getLock(id);
     synchronized (lock) {
       try {
@@ -76,12 +75,8 @@ public class RoomServiceImpl implements RoomService {
         // do nothing
       }
     }
-    log.info("finding room: " + id);
     Room room = roomRepository.findById(id).orElse(null);
-    log.info("creating dto");
     RoomDto dto = Objects.isNull(room) ? null : RoomDto.fromEntity(room, yourName);
-    log.info("setting deferredResult: dto = " + dto);
     deferredResult.setResult(dto);
-    log.info("end setting deferredResult");
   }
 }

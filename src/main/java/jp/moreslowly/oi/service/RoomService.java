@@ -7,7 +7,7 @@ import jp.moreslowly.oi.dto.RoomDto;
 
 public interface RoomService {
 
-  RoomDto getRoomById(HttpSession session, String id);
+  RoomDto enterRoom(HttpSession session, String id);
 
   void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult);
 

@@ -15,7 +15,7 @@ const roomId = route.query.id as string
 let room = ref<Room>({} as Room)
 
 const fetch = async () => {
-  room.value = await roomService.getRoomById(roomId)
+  room.value = await roomService.enterRoom(roomId)
 }
 fetch()
 

@@ -31,11 +31,11 @@ public class RoomController {
   private HttpSession session;
 
   @GetMapping("/")
-  public RoomDto getRoom(@RequestParam String id) {
+  public RoomDto enterRoom(@RequestParam String id) {
     // UUID validation
     UUID.fromString(id);
 
-    return roomService.getRoomById(session, id);
+    return roomService.enterRoom(session, id);
   }
 
   @GetMapping("/subscribe")
@@ -47,9 +47,7 @@ public class RoomController {
 
     DeferredResult<RoomDto> deferredResult = new DeferredResult<>();
     CompletableFuture.runAsync(() -> {
-      log.info("execute subscribe");
       roomService.subscribe(id, yourName, deferredResult);
-      log.info("end subscribe");
     });
 
     return deferredResult;
