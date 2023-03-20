@@ -49,6 +49,9 @@ public class RoomController {
     UUID.fromString(dto.getId());
 
     String yourName = session.getAttribute(SessionKey.NICKNAME).toString();
+    if (yourName == null) {
+      throw new BadRequestException("Invalid nickname");
+    }
 
     DeferredResult<RoomDto> deferredResult = new DeferredResult<>();
     roomService.subscribe(dto.getId(), yourName, deferredResult);
