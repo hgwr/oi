@@ -180,5 +180,9 @@ const myBetsOf = (handIndex: number) => {
 
 .betAmount {
   font-size: 20px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 0px;
+  margin: 5px;
 }
 </style>

@@ -2,10 +2,13 @@ package jp.moreslowly.oi.tasks;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.repository.RoomRepository;
 import lombok.extern.log4j.Log4j2;
 
@@ -29,6 +32,9 @@ public class DealerManager {
   private RoomRepository roomRepository;
 
   private ConcurrentHashMap<String, Object> lockMap = new ConcurrentHashMap<>();
+
+  private ExecutorService runners = Executors
+      .newFixedThreadPool(RoomLimitation.MAX_ROOM_SIZE * 2);
 
   private Object getLock(String roomId) {
     return lockMap.computeIfAbsent(roomId, k -> new Object());
@@ -60,7 +66,7 @@ public class DealerManager {
   @Scheduled(fixedRate = 1000)
   public void startDealer() {
     roomRepository.findAll().forEach(room -> {
-      new Thread(new DealerTask(this, roomRepository, room.getId())).start();
+      runners.submit(new DealerTask(this, roomRepository, room.getId()));
     });
   }
 }
