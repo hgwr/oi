@@ -17,13 +17,13 @@ public class RoomDto {
   private String id;
   private String yourName;
   private List<String> members;
-  private List<String> hands1;
-  private List<String> hands2;
-  private List<String> hands3;
-  private List<String> hands4;
-  private List<String> hands5;
-  private List<String> hands6;
-  private List<String> hands7;
+  private List<Card> hands1;
+  private List<Card> hands2;
+  private List<Card> hands3;
+  private List<Card> hands4;
+  private List<Card> hands5;
+  private List<Card> hands6;
+  private List<Card> hands7;
   private List<BetDto> bets;
   private Status status;
 

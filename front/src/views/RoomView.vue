@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import roomService from '../services/RoomService'
 import { Room } from '../types/Room'
+import CardComponent from '../components/CardComponent.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -41,5 +42,9 @@ roomService.subscribeToRoom(roomId, (newRoom: Room) => {
 
   <div v-for="member in room.members" :key="member">
     {{ member }}
+  </div>
+
+  <div>
+    <CardComponent v-for="card in room.hands1" :key="card.suit + ' ' + card.rank" :card="card" />
   </div>
 </template>
