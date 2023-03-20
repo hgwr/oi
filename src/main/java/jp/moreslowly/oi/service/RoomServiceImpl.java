@@ -1,5 +1,6 @@
 package jp.moreslowly.oi.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import jp.moreslowly.oi.dao.Room.Status;
 import jp.moreslowly.oi.dto.RoomDto;
 import jp.moreslowly.oi.repository.RoomRepository;
 import jp.moreslowly.oi.tasks.DealerManager;
+import jp.moreslowly.oi.tasks.DealerManager.UpdateStatus;
 import lombok.extern.log4j.Log4j2;
 
 @Service
@@ -44,8 +46,15 @@ public class RoomServiceImpl implements RoomService {
       if (roomRepository.count() >= RoomLimitation.MAX_ROOM_SIZE) {
         throw new RuntimeException("Room is full");
       }
-      room = Room.builder().id(id).status(Status.START).build();
-      roomRepository.save(room);
+      room = Room.builder()
+          .id(id)
+          .status(Status.START)
+          .members(new ArrayList<>())
+          .build();
+      dealerManager.updateAndNotify(id, () -> {
+        roomRepository.save(room);
+        return UpdateStatus.UPDATED;
+      });
     }
 
     String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
@@ -54,15 +63,30 @@ public class RoomServiceImpl implements RoomService {
           : Nickname.NICKNAME_LIST.stream().filter((name) -> {
             return !room.getMembers().contains(name);
           }).collect(Collectors.toList());
-
+      if (unusedNames.isEmpty()) {
+        throw new RuntimeException("Nickname is full");
+      }
       nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
       session.setAttribute(SessionKey.NICKNAME, nickname);
+      if (CollectionUtils.isEmpty(room.getMembers())) {
+        room.setMembers(new ArrayList<>());
+      }
+      room.getMembers().add(nickname);
+      dealerManager.updateAndNotify(id, () -> {
+        roomRepository.save(room);
+        return UpdateStatus.UPDATED;
+      });
     }
 
-    return RoomDto.builder()
-        .id(id)
-        .yourName(nickname)
-        .status(room.getStatus()).build();
+    if (!room.getMembers().contains(nickname)) {
+      room.getMembers().add(nickname);
+      dealerManager.updateAndNotify(id, () -> {
+        roomRepository.save(room);
+        return UpdateStatus.UPDATED;
+      });
+    }
+
+    return RoomDto.fromEntity(room, nickname);
   }
 
   @Override
