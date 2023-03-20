@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
+import org.springframework.util.CollectionUtils;
+
 import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.dao.Bet;
 import jp.moreslowly.oi.dao.Room;
@@ -181,23 +183,26 @@ public class DealerTask implements Runnable {
 
     List<Card> parentCards = room.getHands7();
     int parentPoint = manager.getCardService().evaluate(parentCards);
-    room.getBets().stream().forEach(bet -> {
-      List<Card> hands = getHandsAt(room, bet.getHandIndex());
-      int point = manager.getCardService().evaluate(hands);
-      if (point > parentPoint) {
-        bet.setResult(Bet.Result.WIN);
-        int betAmount = bet.getBetAmount();
-        int wallet = room.getWallets().get(bet.getUserName());
-        room.getWallets().put(bet.getUserName(), wallet + betAmount * 2);
-      } else if (point == parentPoint) {
-        bet.setResult(Bet.Result.DRAW);
-        int betAmount = bet.getBetAmount();
-        int wallet = room.getWallets().get(bet.getUserName());
-        room.getWallets().put(bet.getUserName(), wallet + betAmount);
-      } else {
-        bet.setResult(Bet.Result.LOSE);
-      }
-    });
+    List<Bet> bets = room.getBets();
+    if (!CollectionUtils.isEmpty(bets)) {
+      room.getBets().stream().forEach(bet -> {
+        List<Card> hands = getHandsAt(room, bet.getHandIndex());
+        int point = manager.getCardService().evaluate(hands);
+        if (point > parentPoint) {
+          bet.setResult(Bet.Result.WIN);
+          int betAmount = bet.getBetAmount();
+          int wallet = room.getWallets().get(bet.getUserName());
+          room.getWallets().put(bet.getUserName(), wallet + betAmount * 2);
+        } else if (point == parentPoint) {
+          bet.setResult(Bet.Result.DRAW);
+          int betAmount = bet.getBetAmount();
+          int wallet = room.getWallets().get(bet.getUserName());
+          room.getWallets().put(bet.getUserName(), wallet + betAmount);
+        } else {
+          bet.setResult(Bet.Result.LOSE);
+        }
+      });
+    }
 
     room.setStatus(Room.Status.LIQUIDATION.next());
     room.setUpdatedAt(LocalDateTime.now());
