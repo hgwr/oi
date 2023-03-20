@@ -60,7 +60,7 @@ public class DealerTask implements Runnable {
   }
 
   private final int SHORT_TIMEOUT_SEC = 5;
-  private final int GENERAL_TIMEOUT_SEC = 300;
+  private final int GENERAL_TIMEOUT_SEC = 30;
 
   private UpdateStatus processStart(Room room) {
     log.info("processStart: room id {}", room.getId());
@@ -133,6 +133,11 @@ public class DealerTask implements Runnable {
 
   private UpdateStatus processWaitToRequest(Room room) {
     log.info("processWaitToRequest");
+    LocalDateTime now = LocalDateTime.now();
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
+      return UpdateStatus.NOT_UPDATED;
+    }
+
     room.setStatus(Room.Status.START);
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
