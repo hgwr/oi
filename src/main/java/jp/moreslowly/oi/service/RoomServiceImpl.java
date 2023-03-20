@@ -36,8 +36,7 @@ public class RoomServiceImpl implements RoomService {
   @Autowired
   private DealerManager dealerManager;
 
-  @Override
-  public RoomDto enterRoom(HttpSession session, String id) {
+  private Room findOrCreateRoom(String id) {
     Optional<Room> maybeRoom = roomRepository.findById(id);
     Room room;
     if (maybeRoom.isPresent()) {
@@ -56,7 +55,10 @@ public class RoomServiceImpl implements RoomService {
         return UpdateStatus.UPDATED;
       });
     }
+    return room;
+  }
 
+  private String getNickname(HttpSession session, Room room) {
     String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
     if (Objects.isNull(nickname)) {
       List<String> unusedNames = CollectionUtils.isEmpty(room.getMembers()) ? Nickname.NICKNAME_LIST
@@ -72,11 +74,25 @@ public class RoomServiceImpl implements RoomService {
         room.setMembers(new ArrayList<>());
       }
       room.getMembers().add(nickname);
-      dealerManager.updateAndNotify(id, () -> {
+      dealerManager.updateAndNotify(room.getId(), () -> {
         roomRepository.save(room);
         return UpdateStatus.UPDATED;
       });
     }
+    return nickname;
+  }
+
+  @Override
+  public RoomDto enterRoom(HttpSession session, String id) {
+    String enteredRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
+    if (Objects.nonNull(enteredRoomId) && !enteredRoomId.equals(id)) {
+      session.removeAttribute(SessionKey.NICKNAME);
+      session.setAttribute(SessionKey.ROOM_ID, id);
+    }
+
+    Room room = findOrCreateRoom(id);
+
+    String nickname = getNickname(session, room);
 
     if (!room.getMembers().contains(nickname)) {
       room.getMembers().add(nickname);

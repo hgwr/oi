@@ -1,7 +1,8 @@
 package jp.moreslowly.oi.common;
 
 final public class SessionKey {
-  public final static String NICKNAME = "nickname";
+  public static final String NICKNAME = "nickname";
+  public static final String ROOM_ID = "roomId";
 
   private SessionKey() {
   }
