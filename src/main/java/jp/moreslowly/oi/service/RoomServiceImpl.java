@@ -152,6 +152,7 @@ public class RoomServiceImpl implements RoomService {
     dealerManager.updateAndNotify(id, () -> {
       Room room = roomRepository.findById(id).orElseThrow(() -> new BadRequestException("Room is not found"));
       room.reset();
+      room.setMembers(new ArrayList<>());
       room.setUpdatedAt(LocalDateTime.now());
       roomRepository.save(room);
       return UpdateStatus.UPDATED;
