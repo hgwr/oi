@@ -10,6 +10,8 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import ch.qos.logback.access.tomcat.LogbackValve;
+
 @Configuration
 public class TomcatConfig {
   @Value("${ajp.secret}")
@@ -17,9 +19,14 @@ public class TomcatConfig {
 
   @Bean
   public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainer() {
-    return server ->
+    return server -> {
+      LogbackValve logbackValve = new LogbackValve();
+      logbackValve.setAsyncSupported(true);
       Optional.ofNullable(server)
-        .ifPresent(s -> s.addAdditionalTomcatConnectors(redirectConnector()));
+          .ifPresent(s -> s.addContextValves(logbackValve));
+      Optional.ofNullable(server)
+          .ifPresent(s -> s.addAdditionalTomcatConnectors(redirectConnector()));
+    };
   }
 
   private Connector redirectConnector() {

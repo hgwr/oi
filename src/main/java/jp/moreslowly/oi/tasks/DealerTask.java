@@ -78,7 +78,6 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processShuffle(Room room) {
-    log.info("processShuffle");
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
@@ -94,7 +93,6 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processHandOutCards(Room room) {
-    log.info("processHandOutCards");
     List<List<Card>> hands = new ArrayList<>();
     for (int i = 0; i < RoomLimitation.MAX_HAND_OUT_SIZE; i++) {
       List<Card> hand = new ArrayList<>();
@@ -119,7 +117,6 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processWaitToBet(Room room) {
-    log.info("processWaitToBet");
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
@@ -134,8 +131,6 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processWaitToRequest(Room room) {
-    log.info("processWaitToRequest");
-
     if (CollectionUtils.isEmpty(room.getBets())) {
       room.setStatus(Room.Status.WAIT_TO_REQUEST.next());
       room.setUpdatedAt(LocalDateTime.now());
@@ -158,7 +153,6 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processDealerTurn(Room room) {
-    log.info("processDealerTurn");
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
@@ -180,8 +174,6 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processLiquidation(Room room) {
-    log.info("processLiquidation");
-
     List<Card> parentCards = room.getHands7();
     int parentPoint = manager.getCardService().evaluate(parentCards);
     List<Bet> bets = room.getBets();
@@ -217,8 +209,6 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processEnd(Room room) {
-    log.info("processEnd");
-
     int timeout = GENERAL_TIMEOUT_SEC;
     if (CollectionUtils.isEmpty(room.getBets())) {
       timeout = SHORT_TIMEOUT_SEC;
