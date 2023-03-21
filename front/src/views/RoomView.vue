@@ -8,6 +8,7 @@ import { Bet } from '../types/Bet'
 import CardComponent from '../components/CardComponent.vue'
 import BetButton from '../components/BetButton.vue'
 import BetDialog from '../components/BetDialog.vue'
+import { namedColorSet } from '../computedStyles/namedColorSet'
 
 const router = useRouter()
 const route = useRoute()
@@ -135,10 +136,8 @@ const isJoined = computed(() => {
 <template>
   <div class="roomId">{{ roomId }}</div>
 
-  <div class="yourName">
-    <span>
-      あなたの名前 : {{ room.yourName }} 
-    </span>
+  <div :class="['yourName', namedColorSet(room.yourName)]">
+    <span> あなたの名前 : {{ room.yourName }} </span>
     <span>
       {{ walletByUserName(room.yourName) }}
     </span>
@@ -171,7 +170,11 @@ const isJoined = computed(() => {
           v-for="row in scoreBoard()"
           :key="row.userName"
         >
-          <td>{{ row.userName }}</td>
+          <td>
+            <span :class="[namedColorSet(row.userName)]">
+              {{ row.userName }}
+            </span>
+          </td>
           <td class="amount">{{ row.amount }}</td>
         </tr>
       </tbody>
@@ -190,7 +193,7 @@ const isJoined = computed(() => {
         <span v-if="index == 6 && hands.length > 0">親の手札</span>
         <template v-if="myBetsOf(index + 1).length > 0">
           <div
-            class="myBetAmount"
+            :class="['myBetAmount', namedColorSet(room.yourName)]"
             v-for="bet in myBetsOf(index + 1)"
             :key="bet.userName"
           >
@@ -220,9 +223,9 @@ const isJoined = computed(() => {
         </template>
         <template v-if="betsOf(index + 1).length > 0">
           <div
-            class="betAmount"
             v-for="bet in betsOf(index + 1)"
             :key="bet.userName"
+            :class="['betAmount', namedColorSet(bet.userName)]"
           >
             {{ bet.betAmount }}
             <span v-if="bet.result === 'WIN'">勝ち</span>
@@ -290,8 +293,6 @@ const isJoined = computed(() => {
 }
 
 .myBetAmount {
-  color: white;
-  background-color: black;
   font-size: 14px;
   padding: 5px;
   border: 1px solid black;
@@ -325,7 +326,6 @@ const isJoined = computed(() => {
   margin: 5px;
 }
 
-
 @media screen and (max-width: 600px) {
   .boardAndDesk {
     display: flex;
@@ -349,6 +349,4 @@ const isJoined = computed(() => {
     margin-left: 50px;
   }
 }
-
-
 </style>
