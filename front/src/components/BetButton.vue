@@ -24,13 +24,19 @@ const bet = () => {
 <style scoped>
 
 .betButton {
-  font-size: 20px;
+  font-size: 24px;
   padding: 5px 10px;
   border-radius: 10px;
   border: 1px solid #ccc;
   background-color: #fff;
   cursor: pointer;
   margin-left: 10px;
+}
+
+@media screen and (max-width: 600px) {
+  .betButton {
+    font-size: 16px;
+  }
 }
 
 </style>
