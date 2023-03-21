@@ -78,7 +78,7 @@ public class RoomController {
 
     String sessionNickname = (String) session.getAttribute(SessionKey.NICKNAME);
     if (!dto.getUserName().equals(sessionNickname)) {
-      throw new UnprocessableContentException("Invalid nickname");
+      throw new UnprocessableContentException("Invalid nickname on bet validation");
     }
 
     roomService.bet(dto);
@@ -97,7 +97,7 @@ public class RoomController {
 
     String sessionNickname = (String) session.getAttribute(SessionKey.NICKNAME);
     if (!dto.getUserName().equals(sessionNickname)) {
-      throw new UnprocessableContentException("Invalid nickname");
+      throw new UnprocessableContentException("Invalid nickname on request card validation");
     }
 
     roomService.requestCard(dto);

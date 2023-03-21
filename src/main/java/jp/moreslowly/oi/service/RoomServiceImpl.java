@@ -108,20 +108,21 @@ public class RoomServiceImpl implements RoomService {
   }
 
   private void joinRoom(Room room, UUID userId, String nickname) {
-    if (Objects.isNull(room.getMembers())) {
-      room.setMembers(new ArrayList<>());
-    }
-    Member member = Member.builder().id(userId).nickname(nickname).build();
-    if (!room.getMembers().contains(member)) {
-      if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-        return;
+    dealerManager.updateAndNotify(room.getId(), () -> {
+      if (Objects.isNull(room.getMembers())) {
+        room.setMembers(new ArrayList<>());
       }
-      room.getMembers().add(member);
-      dealerManager.updateAndNotify(room.getId(), () -> {
+      Member member = Member.builder().id(userId).nickname(nickname).build();
+      if (!room.getMembers().contains(member)) {
+        if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
+          return UpdateStatus.NOT_UPDATED;
+        }
+        room.getMembers().add(member);
         roomRepository.save(room);
         return UpdateStatus.UPDATED;
-      });
-    }
+      }
+      return UpdateStatus.NOT_UPDATED;
+    });
   }
 
   private void prepareWallets(Room room, String nickname) {
