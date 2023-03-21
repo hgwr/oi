@@ -24,6 +24,7 @@ public final class Card implements Serializable {
     private Suit(String symbol) {
       this.symbol = symbol;
     }
+    @Override
     public String toString() {
       return symbol;
     }
@@ -43,12 +44,13 @@ public final class Card implements Serializable {
     JACK("J"),
     QUEEN("Q"),
     KING("K");
-    private String rank;
+    private String rankValue;
     private Rank(String rank) {
-      this.rank = rank;
+      this.rankValue = rank;
     }
+    @Override
     public String toString() {
-      return rank;
+      return rankValue;
     }
     public int getPoint() {
       if (this == ACE) {
@@ -60,7 +62,7 @@ public final class Card implements Serializable {
       } else if (this == KING) {
         return 13;
       } else {
-        return Integer.parseInt(rank);
+        return Integer.parseInt(rankValue);
       }
     }
   }

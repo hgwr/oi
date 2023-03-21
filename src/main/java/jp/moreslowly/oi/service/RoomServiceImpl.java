@@ -2,12 +2,12 @@ package jp.moreslowly.oi.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -255,38 +255,12 @@ public class RoomServiceImpl implements RoomService {
             requestOneMoreDto.getUserName());
       }
 
-      Card aCard = room.getDeck().remove(0);
-      if (requestOneMoreDto.getHandIndex() == 1) {
-        if (room.getHands1().size() == 3) {
-          throw new UnprocessableContentException("You can't request more card");
-        }
-        room.getHands1().add(aCard);
-      } else if (requestOneMoreDto.getHandIndex() == 2) {
-        if (room.getHands2().size() == 3) {
-          throw new UnprocessableContentException("You can't request more card");
-        }
-        room.getHands2().add(aCard);
-      } else if (requestOneMoreDto.getHandIndex() == 3) {
-        if (room.getHands3().size() == 3) {
-          throw new UnprocessableContentException("You can't request more card");
-        }
-        room.getHands3().add(aCard);
-      } else if (requestOneMoreDto.getHandIndex() == 4) {
-        if (room.getHands4().size() == 3) {
-          throw new UnprocessableContentException("You can't request more card");
-        }
-        room.getHands4().add(aCard);
-      } else if (requestOneMoreDto.getHandIndex() == 5) {
-        if (room.getHands5().size() == 3) {
-          throw new UnprocessableContentException("You can't request more card");
-        }
-        room.getHands5().add(aCard);
-      } else if (requestOneMoreDto.getHandIndex() == 6) {
-        if (room.getHands6().size() == 3) {
-          throw new UnprocessableContentException("You can't request more card");
-        }
-        room.getHands6().add(aCard);
+      List<Card> hands = room.getHandsAt(requestOneMoreDto.getHandIndex());
+      if (hands.size() == 3) {
+        throw new UnprocessableContentException("You can't request more card");
       }
+      Card aCard = room.getDeck().remove(0);
+      hands.add(aCard);
 
       roomRepository.save(room);
 

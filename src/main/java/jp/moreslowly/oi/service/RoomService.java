@@ -3,7 +3,6 @@ package jp.moreslowly.oi.service;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import jakarta.servlet.http.HttpSession;
-import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.RequestCardDto;
 import jp.moreslowly.oi.dto.RoomDto;
