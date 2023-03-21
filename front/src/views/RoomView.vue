@@ -34,8 +34,23 @@ roomService.subscribeToRoom(roomId, (newRoom: Room) => {
   }
 })
 
-const walletByUserName = (userName: string) => {
+const walletByUserName = (userName: string): number => {
   return room.value.wallets[userName] || 0
+}
+
+interface ScoreBoard {
+  userName: string
+  amount: number
+}
+
+const scoreBoard = (): ScoreBoard[] => {
+  const board = room.value.members.map((userName) => {
+    return {
+      userName,
+      amount: walletByUserName(userName),
+    }
+  })
+  return board.sort((a, b) => b.amount - a.amount)
 }
 
 const bet = async (roomId: string, userName: string, handIndex: number) => {
@@ -118,9 +133,9 @@ const isJoined = computed(() => {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="member in room.members" :key="member">
-        <td>{{ member }}</td>
-        <td class="amount">{{ walletByUserName(member) }}</td>
+      <tr v-for="row in scoreBoard()" :key="row.userName">
+        <td>{{ row.userName }}</td>
+        <td class="amount">{{ row.amount }}</td>
       </tr>
     </tbody>
   </table>
