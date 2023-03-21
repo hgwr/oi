@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.util.CollectionUtils;
 
@@ -63,9 +62,8 @@ public class DealerTask implements Runnable {
     });
   }
 
-  private final int SHORT_TIMEOUT_SEC = 5;
-  private final int GENERAL_TIMEOUT_SEC = 30;
-  private final int LONG_TIMEOUT_SEC = 600;
+  private static final int SHORT_TIMEOUT_SEC = 5;
+  private static final int GENERAL_TIMEOUT_SEC = 30;
 
   private UpdateStatus processStart(Room room) {
     log.info("processStart: room id {}", room.getId());

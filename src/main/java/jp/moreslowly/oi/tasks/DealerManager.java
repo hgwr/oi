@@ -1,7 +1,6 @@
 package jp.moreslowly.oi.tasks;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -11,9 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.repository.RoomRepository;
 import jp.moreslowly.oi.service.CardService;
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
 public class DealerManager {
 
   public enum UpdateStatus {

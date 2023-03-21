@@ -2,7 +2,6 @@ package jp.moreslowly.oi.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -71,7 +70,7 @@ public class RoomServiceImpl implements RoomService {
       return UpdateStatus.NOT_UPDATED;
     });
 
-    Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException("Room is not found"));
+    Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException(UnprocessableContentException.ROOM_IS_NOT_FOUND));
     room.setLastAccessedAt(LocalDateTime.now());
     dealerManager.updateAndNotify(id, () -> {
       roomRepository.save(room);
@@ -97,8 +96,8 @@ public class RoomServiceImpl implements RoomService {
       String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
       UUID userId = getUserId(session);
       if (Objects.isNull(nickname)) {
-        List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter((name) -> {
-          return !room.getMembers().stream().anyMatch((m) -> m.getNickname().equals(name));
+        List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter(name -> {
+          return !room.getMembers().stream().anyMatch(m -> m.getNickname().equals(name));
         }).collect(Collectors.toList());
         if (unusedNames.isEmpty()) {
           throw new FullMemberException("Nickname is full");
@@ -184,7 +183,7 @@ public class RoomServiceImpl implements RoomService {
     runners.execute(() -> {
       dealerManager.waitForUpdating(id, () -> {
         Room newRoom = roomRepository.findById(id)
-            .orElseThrow(() -> new UnprocessableContentException("Room is not found"));
+            .orElseThrow(() -> new UnprocessableContentException(UnprocessableContentException.ROOM_IS_NOT_FOUND));
         RoomDto dto = RoomDto.fromEntity(newRoom, yourName);
         deferredResult.setResult(dto);
       });
@@ -194,7 +193,7 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public void reset(String id) {
     dealerManager.updateAndNotify(id, () -> {
-      Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException("Room is not found"));
+      Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException(UnprocessableContentException.ROOM_IS_NOT_FOUND));
       room.reset();
       room.setMembers(new ArrayList<>());
       room.setUpdatedAt(LocalDateTime.now());
@@ -245,7 +244,7 @@ public class RoomServiceImpl implements RoomService {
       }
 
       Optional<Bet> maybeBet = room.getBets().stream().filter(
-          bet -> bet.getHandIndex() == requestOneMoreDto.getHandIndex()).findFirst();
+          bet -> Objects.equals(bet.getHandIndex(), requestOneMoreDto.getHandIndex())).findFirst();
       if (!maybeBet.isPresent()) {
         throw new UnprocessableContentException("You are not owner of this hand");
       }
