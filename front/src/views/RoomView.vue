@@ -95,6 +95,10 @@ const requestCard = async (handIndex: number) => {
   await roomService.requestCard(roomId, room.value.yourName, handIndex)
 }
 
+const isJoined = computed(() => {
+  return room.value.members && room.value.members.includes(room.value.yourName)
+})
+
 </script>
 
 <template>
@@ -143,7 +147,7 @@ const requestCard = async (handIndex: number) => {
         </button>
       </template>
       <template v-else>
-        <template v-if="index + 1 != 7">
+        <template v-if="index + 1 != 7 && isJoined">
           <BetButton
             v-if="room.status === Status.WAIT_TO_BET"
             @bet="bet"

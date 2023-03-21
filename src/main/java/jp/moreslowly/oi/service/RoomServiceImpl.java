@@ -87,7 +87,8 @@ public class RoomServiceImpl implements RoomService {
         room.setMembers(new ArrayList<>());
       }
       if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-        throw new FullMemberException("Room is full on enter");
+        // throw new FullMemberException("Room is full on enter");
+        return nickname;
       }
       room.getMembers().add(nickname);
       dealerManager.updateAndNotify(room.getId(), () -> {
@@ -104,7 +105,8 @@ public class RoomServiceImpl implements RoomService {
     }
     if (!room.getMembers().contains(nickname)) {
       if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-        throw new FullMemberException("Room is full on join");
+        // throw new FullMemberException("Room is full on join");
+        return;
       }
       room.getMembers().add(nickname);
       dealerManager.updateAndNotify(room.getId(), () -> {
@@ -112,6 +114,17 @@ public class RoomServiceImpl implements RoomService {
         return UpdateStatus.UPDATED;
       });
     }
+  }
+
+  private void prepareWallets(Room room, String nickname) {
+    dealerManager.updateAndNotify(room.getId(), () -> {
+      if (Objects.isNull(room.getWallets())) {
+        room.setWallets(new HashMap<>());
+      }
+      room.getWallets().putIfAbsent(nickname, 10000);
+      roomRepository.save(room);
+      return UpdateStatus.UPDATED;
+    });
   }
 
   @Override
@@ -127,19 +140,9 @@ public class RoomServiceImpl implements RoomService {
     }
 
     Room room = findOrCreateRoom(id);
-
     String nickname = getNickname(session, room);
-
     joinRoom(room, nickname);
-
-    dealerManager.updateAndNotify(id, () -> {
-      if (Objects.isNull(room.getWallets())) {
-        room.setWallets(new HashMap<>());
-      }
-      room.getWallets().putIfAbsent(nickname, 10000);
-      roomRepository.save(room);
-      return UpdateStatus.UPDATED;
-    });
+    prepareWallets(room, nickname);
 
     return RoomDto.fromEntity(room, nickname);
   }
@@ -149,21 +152,13 @@ public class RoomServiceImpl implements RoomService {
 
   @Override
   public void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult) {
-    dealerManager.updateAndNotify(id, () -> {
-      Room room = findOrCreateRoom(id);
-      if (Objects.nonNull(room.getMembers()) && room.getMembers().contains(yourName)) {
-        return UpdateStatus.NOT_UPDATED;
-      }
+    Room room = findOrCreateRoom(id);
+    if (Objects.nonNull(room.getMembers()) && !room.getMembers().contains(yourName)) {
       joinRoom(room, yourName);
-      room.setUpdatedAt(LocalDateTime.now());
-      roomRepository.save(room);
-      return UpdateStatus.UPDATED;
-    });
+    }
 
     runners.execute(() -> {
       dealerManager.waitForUpdating(id, () -> {
-        Room room = roomRepository.findById(id).orElseThrow(
-            () -> new UnprocessableContentException("Room is not found"));
         RoomDto dto = RoomDto.fromEntity(room, yourName);
         deferredResult.setResult(dto);
       });
@@ -190,6 +185,10 @@ public class RoomServiceImpl implements RoomService {
         return UpdateStatus.NOT_UPDATED;
       }
       Room room = maybeRoom.get();
+
+      if (!room.getMembers().contains(betDto.getUserName())) {
+        throw new UnprocessableContentException("Invalid nickname");
+      }
 
       if (CollectionUtils.isEmpty(room.getBets())) {
         room.setBets(new ArrayList<>());
