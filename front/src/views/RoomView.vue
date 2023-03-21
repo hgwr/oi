@@ -349,7 +349,7 @@ const isJoined = computed(() => {
   .boardAndDesk {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
   }
   .desk {
