@@ -22,7 +22,7 @@ import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.IdDto;
 import jp.moreslowly.oi.dto.RequestCardDto;
 import jp.moreslowly.oi.dto.RoomDto;
-import jp.moreslowly.oi.exception.BadRequestException;
+import jp.moreslowly.oi.exception.UnprocessableContentException;
 import jp.moreslowly.oi.service.RoomService;
 import lombok.extern.log4j.Log4j2;
 
@@ -52,7 +52,7 @@ public class RoomController {
 
     String yourName = (String) session.getAttribute(SessionKey.NICKNAME);
     if (Objects.isNull(yourName)) {
-      throw new BadRequestException("Invalid nickname");
+      throw new UnprocessableContentException("Invalid nickname");
     }
 
     DeferredResult<RoomDto> deferredResult = new DeferredResult<>();
@@ -77,12 +77,12 @@ public class RoomController {
     String sessionRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
     UUID sessionRoomIdUUID = UUID.fromString(sessionRoomId);
     if (!roomIdUUID.equals(sessionRoomIdUUID)) {
-      throw new BadRequestException("Invalid room id");
+      throw new UnprocessableContentException("Invalid room id");
     }
 
     String sessionNickname = (String) session.getAttribute(SessionKey.NICKNAME);
     if (!dto.getUserName().equals(sessionNickname)) {
-      throw new BadRequestException("Invalid nickname");
+      throw new UnprocessableContentException("Invalid nickname");
     }
 
     roomService.bet(dto);
@@ -96,12 +96,12 @@ public class RoomController {
     String sessionRoomId = (String) session.getAttribute(SessionKey.ROOM_ID);
     UUID sessionRoomIdUUID = UUID.fromString(sessionRoomId);
     if (!roomIdUUID.equals(sessionRoomIdUUID)) {
-      throw new BadRequestException("Invalid room id");
+      throw new UnprocessableContentException("Invalid room id");
     }
 
     String sessionNickname = (String) session.getAttribute(SessionKey.NICKNAME);
     if (!dto.getUserName().equals(sessionNickname)) {
-      throw new BadRequestException("Invalid nickname");
+      throw new UnprocessableContentException("Invalid nickname");
     }
 
     roomService.requestCard(dto);

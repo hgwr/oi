@@ -26,7 +26,9 @@ import jp.moreslowly.oi.dao.Room.Status;
 import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.RequestCardDto;
 import jp.moreslowly.oi.dto.RoomDto;
-import jp.moreslowly.oi.exception.BadRequestException;
+import jp.moreslowly.oi.exception.FullMemberException;
+import jp.moreslowly.oi.exception.NoRoomException;
+import jp.moreslowly.oi.exception.UnprocessableContentException;
 import jp.moreslowly.oi.models.Card;
 import jp.moreslowly.oi.models.Nickname;
 import jp.moreslowly.oi.repository.RoomRepository;
@@ -51,7 +53,7 @@ public class RoomServiceImpl implements RoomService {
       room = maybeRoom.get();
     } else {
       if (roomRepository.count() >= RoomLimitation.MAX_ROOM_SIZE) {
-        throw new BadRequestException("Room is full");
+        throw new NoRoomException("No Room");
       }
       room = Room.builder()
           .id(id)
@@ -70,17 +72,22 @@ public class RoomServiceImpl implements RoomService {
   private String getNickname(HttpSession session, Room room) {
     String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
     if (Objects.isNull(nickname)) {
-      List<String> unusedNames = CollectionUtils.isEmpty(room.getMembers()) ? Nickname.NICKNAME_LIST
-          : Nickname.NICKNAME_LIST.stream().filter((name) -> {
-            return !room.getMembers().contains(name);
-          }).collect(Collectors.toList());
+      if (Objects.isNull(room.getMembers())) {
+        room.setMembers(new ArrayList<>());
+      }
+      List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter((name) -> {
+        return !room.getMembers().contains(name);
+      }).collect(Collectors.toList());
       if (unusedNames.isEmpty()) {
-        throw new BadRequestException("Nickname is full");
+        throw new FullMemberException("Nickname is full");
       }
       nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
       session.setAttribute(SessionKey.NICKNAME, nickname);
       if (CollectionUtils.isEmpty(room.getMembers())) {
         room.setMembers(new ArrayList<>());
+      }
+      if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
+        throw new FullMemberException("Room is full on enter");
       }
       room.getMembers().add(nickname);
       dealerManager.updateAndNotify(room.getId(), () -> {
@@ -92,10 +99,13 @@ public class RoomServiceImpl implements RoomService {
   }
 
   private void joinRoom(Room room, String nickname) {
-    if (CollectionUtils.isEmpty(room.getMembers())) {
+    if (Objects.isNull(room.getMembers())) {
       room.setMembers(new ArrayList<>());
     }
     if (!room.getMembers().contains(nickname)) {
+      if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
+        throw new FullMemberException("Room is full on join");
+      }
       room.getMembers().add(nickname);
       dealerManager.updateAndNotify(room.getId(), () -> {
         roomRepository.save(room);
@@ -153,7 +163,7 @@ public class RoomServiceImpl implements RoomService {
     runners.execute(() -> {
       dealerManager.waitForUpdating(id, () -> {
         Room room = roomRepository.findById(id).orElseThrow(
-            () -> new BadRequestException("Room is not found"));
+            () -> new UnprocessableContentException("Room is not found"));
         RoomDto dto = RoomDto.fromEntity(room, yourName);
         deferredResult.setResult(dto);
       });
@@ -163,7 +173,7 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public void reset(String id) {
     dealerManager.updateAndNotify(id, () -> {
-      Room room = roomRepository.findById(id).orElseThrow(() -> new BadRequestException("Room is not found"));
+      Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException("Room is not found"));
       room.reset();
       room.setMembers(new ArrayList<>());
       room.setUpdatedAt(LocalDateTime.now());
@@ -204,49 +214,49 @@ public class RoomServiceImpl implements RoomService {
       Room room = maybeRoom.get();
 
       if (!room.getMembers().contains(requestOneMoreDto.getUserName())) {
-        throw new BadRequestException("You are not member of this room");
+        throw new UnprocessableContentException("You are not member of this room");
       }
 
       Optional<Bet> maybeBet = room.getBets().stream().filter(
           bet -> bet.getHandIndex() == requestOneMoreDto.getHandIndex()).findFirst();
       if (!maybeBet.isPresent()) {
-        throw new BadRequestException("You are not owner of this hand");
+        throw new UnprocessableContentException("You are not owner of this hand");
       }
       Bet bet = maybeBet.get();
       if (!bet.getUserName().equals(requestOneMoreDto.getUserName())) {
-        throw new BadRequestException("You are not owner of this hand: " + bet.getUserName() + ", " +
+        throw new UnprocessableContentException("You are not owner of this hand: " + bet.getUserName() + ", " +
             requestOneMoreDto.getUserName());
       }
 
       Card aCard = room.getDeck().remove(0);
       if (requestOneMoreDto.getHandIndex() == 1) {
         if (room.getHands1().size() == 3) {
-          throw new BadRequestException("You can't request more card");
+          throw new UnprocessableContentException("You can't request more card");
         }
         room.getHands1().add(aCard);
       } else if (requestOneMoreDto.getHandIndex() == 2) {
         if (room.getHands2().size() == 3) {
-          throw new BadRequestException("You can't request more card");
+          throw new UnprocessableContentException("You can't request more card");
         }
         room.getHands2().add(aCard);
       } else if (requestOneMoreDto.getHandIndex() == 3) {
         if (room.getHands3().size() == 3) {
-          throw new BadRequestException("You can't request more card");
+          throw new UnprocessableContentException("You can't request more card");
         }
         room.getHands3().add(aCard);
       } else if (requestOneMoreDto.getHandIndex() == 4) {
         if (room.getHands4().size() == 3) {
-          throw new BadRequestException("You can't request more card");
+          throw new UnprocessableContentException("You can't request more card");
         }
         room.getHands4().add(aCard);
       } else if (requestOneMoreDto.getHandIndex() == 5) {
         if (room.getHands5().size() == 3) {
-          throw new BadRequestException("You can't request more card");
+          throw new UnprocessableContentException("You can't request more card");
         }
         room.getHands5().add(aCard);
       } else if (requestOneMoreDto.getHandIndex() == 6) {
         if (room.getHands6().size() == 3) {
-          throw new BadRequestException("You can't request more card");
+          throw new UnprocessableContentException("You can't request more card");
         }
         room.getHands6().add(aCard);
       }

@@ -214,6 +214,7 @@ public class DealerTask implements Runnable {
       return UpdateStatus.NOT_UPDATED;
     }
 
+    room.reset();
     room.setStatus(Room.Status.END.next());
     room.setUpdatedAt(LocalDateTime.now());
     roomRepository.save(room);
