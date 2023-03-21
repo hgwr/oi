@@ -23,7 +23,9 @@ let selectedHandIndex = ref<number>(0)
 let isDisplayBetDialog = ref<boolean>(false)
 let timeLeft = ref<number>(0)
 
-onMounted(() => {
+onMounted(async () => {
+  room.value = await roomService.enterRoom(roomId)
+  timeLeft.value = room.value.timeLeft
   roomService.subscribeToRoom(roomId, (newRoom: Room) => {
     if (newRoom) {
       room.value = newRoom
@@ -43,12 +45,6 @@ onMounted(() => {
     roomService.stopSubscribe()
   })
 })
-
-const fetch = async () => {
-  room.value = await roomService.enterRoom(roomId)
-  timeLeft.value = room.value.timeLeft
-}
-fetch()
 
 const walletByUserName = (userName: string): number => {
   return (room.value.wallets || {})[userName] || 0

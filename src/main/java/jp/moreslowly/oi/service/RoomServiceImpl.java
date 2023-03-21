@@ -101,6 +101,7 @@ public class RoomServiceImpl implements RoomService {
       if (Objects.isNull(room.getMembers())) {
         room.setMembers(new ArrayList<>());
       }
+
       Optional<Member> maybeMember = room.getMembers().stream().filter(m -> m.getId().equals(userId)).findFirst();
       if (maybeMember.isPresent()) {
         session.setAttribute(SessionKey.NICKNAME, maybeMember.get().getNickname());
