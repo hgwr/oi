@@ -81,6 +81,8 @@ public class DealerTask implements Runnable {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
+      room.setTimeLeft(ChronoUnit.SECONDS.between(now, timeLimit));
+      roomRepository.save(room);
       return UpdateStatus.NOT_UPDATED;
     }
 
@@ -120,6 +122,8 @@ public class DealerTask implements Runnable {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
+      room.setTimeLeft(ChronoUnit.SECONDS.between(now, timeLimit));
+      roomRepository.save(room);
       return UpdateStatus.NOT_UPDATED;
     }
 
@@ -142,6 +146,8 @@ public class DealerTask implements Runnable {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
+      room.setTimeLeft(ChronoUnit.SECONDS.between(now, timeLimit));
+      roomRepository.save(room);
       return UpdateStatus.NOT_UPDATED;
     }
 
@@ -156,6 +162,8 @@ public class DealerTask implements Runnable {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
+      room.setTimeLeft(ChronoUnit.SECONDS.between(now, timeLimit));
+      roomRepository.save(room);
       return UpdateStatus.NOT_UPDATED;
     }
 
@@ -216,6 +224,8 @@ public class DealerTask implements Runnable {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(timeout);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
+      room.setTimeLeft(ChronoUnit.SECONDS.between(now, timeLimit));
+      roomRepository.save(room);
       return UpdateStatus.NOT_UPDATED;
     }
 

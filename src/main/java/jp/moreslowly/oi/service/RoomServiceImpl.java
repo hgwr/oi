@@ -62,6 +62,7 @@ public class RoomServiceImpl implements RoomService {
           .members(new ArrayList<>())
           .wallets(new HashMap<>())
           .build();
+      room.getWallets().put("dummy", 0);
       dealerManager.updateAndNotify(id, () -> {
         roomRepository.save(room);
         return UpdateStatus.UPDATED;
@@ -127,10 +128,6 @@ public class RoomServiceImpl implements RoomService {
 
   private void prepareWallets(Room room, String nickname) {
     dealerManager.updateAndNotify(room.getId(), () -> {
-      if (Objects.isNull(room.getWallets())) {
-        log.warn("##### Clear Wallets !!!! ######");
-        room.setWallets(new HashMap<>());
-      }
       room.getWallets().putIfAbsent(nickname, 10000);
       roomRepository.save(room);
       return UpdateStatus.UPDATED;
@@ -278,7 +275,6 @@ public class RoomServiceImpl implements RoomService {
         room.getHands6().add(aCard);
       }
 
-      room.setUpdatedAt(LocalDateTime.now());
       roomRepository.save(room);
 
       return UpdateStatus.UPDATED;
