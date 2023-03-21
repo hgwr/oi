@@ -104,8 +104,7 @@ public class RoomServiceImpl implements RoomService {
       }
       return UpdateStatus.NOT_UPDATED;
     });
-    String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
-    return nickname;
+    return (String) session.getAttribute(SessionKey.NICKNAME);
   }
 
   private void joinRoom(Room room, UUID userId, String nickname) {
