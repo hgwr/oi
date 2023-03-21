@@ -18,6 +18,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import jakarta.servlet.http.HttpSession;
 import jp.moreslowly.oi.common.RoomLimitation;
 import jp.moreslowly.oi.common.SessionKey;
+import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.dto.BetDto;
 import jp.moreslowly.oi.dto.IdDto;
 import jp.moreslowly.oi.dto.RequestCardDto;
@@ -50,13 +51,8 @@ public class RoomController {
     // UUID validation
     UUID.fromString(dto.getId());
 
-    String yourName = (String) session.getAttribute(SessionKey.NICKNAME);
-    if (Objects.isNull(yourName)) {
-      throw new UnprocessableContentException("Invalid nickname");
-    }
-
     DeferredResult<RoomDto> deferredResult = new DeferredResult<>();
-    roomService.subscribe(dto.getId(), yourName, deferredResult);
+    roomService.subscribe(dto.getId(), session, deferredResult);
 
     return deferredResult;
   }

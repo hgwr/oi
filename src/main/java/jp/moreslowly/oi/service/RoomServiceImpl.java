@@ -151,9 +151,18 @@ public class RoomServiceImpl implements RoomService {
       .newFixedThreadPool(RoomLimitation.MAX_ROOM_SIZE * RoomLimitation.MAX_MEMBER_SIZE);
 
   @Override
-  public void subscribe(String id, String yourName, DeferredResult<RoomDto> deferredResult) {
+  public void subscribe(String id, HttpSession session, DeferredResult<RoomDto> deferredResult) {
+    String yourName;
+    String maybeYourName = (String) session.getAttribute(SessionKey.NICKNAME);
+    if (Objects.isNull(maybeYourName)) {
+      Room room = findOrCreateRoom(id);
+      yourName = getNickname(session, room);
+    } else {
+      yourName = maybeYourName;
+    }
+
     Room room = findOrCreateRoom(id);
-    if (Objects.nonNull(room.getMembers()) && !room.getMembers().contains(yourName)) {
+    if (CollectionUtils.isEmpty(room.getMembers()) || !room.getMembers().contains(yourName)) {
       joinRoom(room, yourName);
     }
 
