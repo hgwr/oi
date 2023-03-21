@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import roomService from '../services/RoomService'
 import { Status, StatusType } from '../types/Status'
@@ -20,15 +20,30 @@ const roomId = route.query.id as string
 let room = ref<Room>({} as Room)
 let selectedHandIndex = ref<number>(0)
 let isDisplayBetDialog = ref<boolean>(false)
+let timeLeft = ref<number>(0)
+
+onMounted(() => {
+  const timer = setInterval(() => {
+    if (timeLeft.value <= 0) {
+      return
+    }
+    timeLeft.value = timeLeft.value - 1
+  }, 1000)
+  onBeforeUnmount(() => {
+    clearInterval(timer)
+  })
+})
 
 const fetch = async () => {
   room.value = await roomService.enterRoom(roomId)
+  timeLeft.value = room.value.timeLeft
 }
 fetch()
 
 roomService.subscribeToRoom(roomId, (newRoom: Room) => {
   if (newRoom) {
     room.value = newRoom
+    timeLeft.value = room.value.timeLeft
   }
 })
 
@@ -140,6 +155,7 @@ const isJoined = computed(() => {
     <span v-if="room.status === Status.DEALER_TURN">親の番</span>
     <span v-if="room.status === Status.LIQUIDATION">精算中</span>
     <span v-if="room.status === Status.END">ゲーム終了</span>
+    <span>（{{ timeLeft }}）</span>
   </div>
 
   <div class="boardAndDesk">
@@ -279,7 +295,7 @@ const isJoined = computed(() => {
 .myBetAmount {
   color: white;
   background-color: black;
-  font-size: 16px;
+  font-size: 14px;
   padding: 5px;
   border: 1px solid black;
   border-radius: 0px;
@@ -287,7 +303,7 @@ const isJoined = computed(() => {
 }
 
 .betAmount {
-  font-size: 16px;
+  font-size: 14px;
   padding: 5px;
   border: 1px solid black;
   border-radius: 0px;

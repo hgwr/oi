@@ -1,6 +1,7 @@
 package jp.moreslowly.oi.tasks;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -71,6 +72,7 @@ public class DealerTask implements Runnable {
     room.reset();
     room.setStatus(Room.Status.START.next());
     room.setUpdatedAt(LocalDateTime.now());
+    room.setTimeLeft((long) SHORT_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -78,7 +80,8 @@ public class DealerTask implements Runnable {
   private UpdateStatus processShuffle(Room room) {
     log.info("processShuffle");
     LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC))) {
+    LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC);
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
       return UpdateStatus.NOT_UPDATED;
     }
 
@@ -110,6 +113,7 @@ public class DealerTask implements Runnable {
     room.setHands7(hands.get(6));
     room.setStatus(Room.Status.HAND_OUT_CARDS.next());
     room.setUpdatedAt(LocalDateTime.now());
+    room.setTimeLeft((long) GENERAL_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -117,12 +121,14 @@ public class DealerTask implements Runnable {
   private UpdateStatus processWaitToBet(Room room) {
     log.info("processWaitToBet");
     LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
+    LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC);
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
       return UpdateStatus.NOT_UPDATED;
     }
 
     room.setStatus(Room.Status.WAIT_TO_BET.next());
     room.setUpdatedAt(LocalDateTime.now());
+    room.setTimeLeft((long) GENERAL_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -133,17 +139,20 @@ public class DealerTask implements Runnable {
     if (CollectionUtils.isEmpty(room.getBets())) {
       room.setStatus(Room.Status.WAIT_TO_REQUEST.next());
       room.setUpdatedAt(LocalDateTime.now());
+      room.setTimeLeft((long) SHORT_TIMEOUT_SEC);
       roomRepository.save(room);
       return UpdateStatus.UPDATED;
     }
 
     LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC))) {
+    LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(GENERAL_TIMEOUT_SEC);
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
       return UpdateStatus.NOT_UPDATED;
     }
 
     room.setStatus(Room.Status.WAIT_TO_REQUEST.next());
     room.setUpdatedAt(LocalDateTime.now());
+    room.setTimeLeft((long) SHORT_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -151,7 +160,8 @@ public class DealerTask implements Runnable {
   private UpdateStatus processDealerTurn(Room room) {
     log.info("processDealerTurn");
     LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC))) {
+    LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC);
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
       return UpdateStatus.NOT_UPDATED;
     }
 
@@ -197,6 +207,11 @@ public class DealerTask implements Runnable {
 
     room.setStatus(Room.Status.LIQUIDATION.next());
     room.setUpdatedAt(LocalDateTime.now());
+    int timeout = GENERAL_TIMEOUT_SEC;
+    if (CollectionUtils.isEmpty(room.getBets())) {
+      timeout = SHORT_TIMEOUT_SEC;
+    }
+    room.setTimeLeft((long) timeout);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -208,15 +223,16 @@ public class DealerTask implements Runnable {
     if (CollectionUtils.isEmpty(room.getBets())) {
       timeout = SHORT_TIMEOUT_SEC;
     }
-
     LocalDateTime now = LocalDateTime.now();
-    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(room.getUpdatedAt().plusSeconds(timeout))) {
+    LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(timeout);
+    if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
       return UpdateStatus.NOT_UPDATED;
     }
 
     room.reset();
     room.setStatus(Room.Status.END.next());
     room.setUpdatedAt(LocalDateTime.now());
+    room.setTimeLeft(0L);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }

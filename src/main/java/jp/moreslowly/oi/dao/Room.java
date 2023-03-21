@@ -51,7 +51,8 @@ public class Room {
   @Builder.Default private List<Card> hands6 = new ArrayList<>();
   @Builder.Default private List<Card> hands7 = new ArrayList<>();
   @Builder.Default private List<Bet> bets = new ArrayList<>();
-  private Status status;
+  @Builder.Default private Status status = Status.START;
+  @Builder.Default private Long timeLeft = 0L;
   private LocalDateTime updatedAt;
 
   public Room() {
@@ -72,6 +73,7 @@ public class Room {
     this.hands7 = new ArrayList<>();
     this.bets = new ArrayList<>();
     this.status = Status.START;
+    this.timeLeft = 0L;
   }
 
   public List<Card> getHandsAt(int index) {

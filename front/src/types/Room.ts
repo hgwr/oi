@@ -16,4 +16,5 @@ export interface Room {
   hands7: Card[]
   bets: Bet[]
   status: StatusType
+  timeLeft: number
 }
