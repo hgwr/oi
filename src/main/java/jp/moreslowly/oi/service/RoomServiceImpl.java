@@ -83,7 +83,7 @@ public class RoomServiceImpl implements RoomService {
       }
       nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
       session.setAttribute(SessionKey.NICKNAME, nickname);
-      if (CollectionUtils.isEmpty(room.getMembers())) {
+      if (Objects.isNull(room.getMembers())) {
         room.setMembers(new ArrayList<>());
       }
       if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {

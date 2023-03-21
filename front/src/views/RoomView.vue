@@ -18,7 +18,6 @@ if (!route.query.id) {
 const roomId = route.query.id as string
 
 let room = ref<Room>({} as Room)
-let wallet = ref<number>(0)
 let selectedHandIndex = ref<number>(0)
 let isDisplayBetDialog = ref<boolean>(false)
 
@@ -30,12 +29,11 @@ fetch()
 roomService.subscribeToRoom(roomId, (newRoom: Room) => {
   if (newRoom) {
     room.value = newRoom
-    wallet.value = room.value.wallets[room.value.yourName] || 0
   }
 })
 
 const walletByUserName = (userName: string): number => {
-  return room.value.wallets[userName] || 0
+  return (room.value.wallets || {})[userName] || 0
 }
 
 interface ScoreBoard {
@@ -44,7 +42,7 @@ interface ScoreBoard {
 }
 
 const scoreBoard = (): ScoreBoard[] => {
-  const board = room.value.members.map((userName) => {
+  const board = (room.value.members || []).map((userName) => {
     return {
       userName,
       amount: walletByUserName(userName),
@@ -127,8 +125,21 @@ const isJoined = computed(() => {
       あなたの名前 : {{ room.yourName }} 
     </span>
     <span>
-      {{ wallet }}
+      {{ walletByUserName(room.yourName) }}
     </span>
+  </div>
+
+  <div class="statusBar">
+    <span>ステータス：</span>
+    <span v-if="!isJoined">（観戦中）</span>
+    <span v-if="room.status === Status.START">ゲーム開始</span>
+    <span v-if="room.status === Status.SHUFFLE">シャッフル中</span>
+    <span v-if="room.status === Status.HAND_OUT_CARDS">配布中</span>
+    <span v-if="room.status === Status.WAIT_TO_BET">賭けてください</span>
+    <span v-if="room.status === Status.WAIT_TO_REQUEST">もう一枚引きますか？</span>
+    <span v-if="room.status === Status.DEALER_TURN">親の番</span>
+    <span v-if="room.status === Status.LIQUIDATION">精算中</span>
+    <span v-if="room.status === Status.END">ゲーム終了</span>
   </div>
 
   <div class="boardAndDesk">
@@ -205,19 +216,6 @@ const isJoined = computed(() => {
         </template>
       </div>
     </div>
-  </div>
-
-  <div class="statusBar">
-    <span>ステータス：</span>
-    <span v-if="!isJoined">（観戦中）</span>
-    <span v-if="room.status === Status.START">ゲーム開始</span>
-    <span v-if="room.status === Status.SHUFFLE">シャッフル中</span>
-    <span v-if="room.status === Status.HAND_OUT_CARDS">配布中</span>
-    <span v-if="room.status === Status.WAIT_TO_BET">賭けてください</span>
-    <span v-if="room.status === Status.WAIT_TO_REQUEST">もう一枚引きますか？</span>
-    <span v-if="room.status === Status.DEALER_TURN">親の番</span>
-    <span v-if="room.status === Status.LIQUIDATION">精算中</span>
-    <span v-if="room.status === Status.END">ゲーム終了</span>
   </div>
 
   <BetDialog
