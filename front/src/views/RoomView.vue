@@ -247,10 +247,7 @@ const isJoined = computed(() => {
 <style scoped>
 .roomId {
   font-size: 10px;
-  padding: 5px;
-  border: 1px solid black;
-  border-radius: 0px;
-  margin: 5px;
+  padding: 3px;
   text-align: center;
 }
 
