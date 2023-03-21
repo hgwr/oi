@@ -81,7 +81,7 @@ public class RoomController {
       throw new UnprocessableContentException("Invalid nickname on bet validation");
     }
 
-    roomService.bet(dto);
+    roomService.bet(session, dto);
   }
 
   @PostMapping("/requestCard")
@@ -100,6 +100,6 @@ public class RoomController {
       throw new UnprocessableContentException("Invalid nickname on request card validation");
     }
 
-    roomService.requestCard(dto);
+    roomService.requestCard(session, dto);
   }
 }

@@ -16,7 +16,7 @@ public interface RoomService {
 
   void reset(String id);
 
-  void bet(BetDto betDto);
+  void bet(HttpSession session, BetDto betDto);
 
-  void requestCard(RequestCardDto requestOneMoreDto);
+  void requestCard(HttpSession session, RequestCardDto requestOneMoreDto);
 }

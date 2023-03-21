@@ -166,7 +166,8 @@ public class RoomServiceImpl implements RoomService {
     UUID userId = getUserId(session);
     Room room = findOrCreateRoom(id);
     String yourName = getNickname(session, room);
-    if (CollectionUtils.isEmpty(room.getMembers()) || !room.getMembers().contains(yourName)) {
+    Member you = Member.builder().id(userId).nickname(yourName).build();
+    if (CollectionUtils.isEmpty(room.getMembers()) || !room.getMembers().contains(you)) {
       joinRoom(room, userId, yourName);
     }
 
@@ -193,15 +194,16 @@ public class RoomServiceImpl implements RoomService {
   }
 
   @Override
-  public void bet(BetDto betDto) {
+  public void bet(HttpSession session, BetDto betDto) {
+    UUID userId = getUserId(session);
     dealerManager.updateAndNotify(betDto.getRoomId(), () -> {
       Optional<Room> maybeRoom = roomRepository.findById(betDto.getRoomId());
       if (!maybeRoom.isPresent()) {
         return UpdateStatus.NOT_UPDATED;
       }
       Room room = maybeRoom.get();
-
-      if (!room.getMembers().contains(betDto.getUserName())) {
+      Member you = Member.builder().id(userId).nickname(betDto.getUserName()).build();
+      if (!room.getMembers().contains(you)) {
         throw new UnprocessableContentException("Invalid nickname");
       }
 
@@ -219,15 +221,16 @@ public class RoomServiceImpl implements RoomService {
   }
 
   @Override
-  public void requestCard(RequestCardDto requestOneMoreDto) {
+  public void requestCard(HttpSession session, RequestCardDto requestOneMoreDto) {
+    UUID userId = getUserId(session);
     dealerManager.updateAndNotify(requestOneMoreDto.getRoomId(), () -> {
       Optional<Room> maybeRoom = roomRepository.findById(requestOneMoreDto.getRoomId());
       if (!maybeRoom.isPresent()) {
         return UpdateStatus.NOT_UPDATED;
       }
       Room room = maybeRoom.get();
-
-      if (!room.getMembers().contains(requestOneMoreDto.getUserName())) {
+      Member you = Member.builder().id(userId).nickname(requestOneMoreDto.getUserName()).build();
+      if (!room.getMembers().contains(you)) {
         throw new UnprocessableContentException("You are not member of this room");
       }
 
