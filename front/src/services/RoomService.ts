@@ -14,12 +14,16 @@ export default class RoomService {
 
   static isSubscribed = false
 
+  static stopSubscribe() {
+    this.isSubscribed = false
+  }
+
   static async subscribeToRoom(roomId: string, callback: (room: Room) => void): Promise<Room> {
     if (this.isSubscribed) {
       return Promise.reject('Already subscribed')
     }
     this.isSubscribed = true
-    while (true) {
+    while (this.isSubscribed) {
       try {
         const response = await axios.post(`/room/subscribe`, { id: roomId })
 

@@ -23,14 +23,23 @@ let isDisplayBetDialog = ref<boolean>(false)
 let timeLeft = ref<number>(0)
 
 onMounted(() => {
+  roomService.subscribeToRoom(roomId, (newRoom: Room) => {
+    if (newRoom) {
+      room.value = newRoom
+      timeLeft.value = room.value.timeLeft
+    }
+  })
+
   const timer = setInterval(() => {
     if (timeLeft.value <= 0) {
       return
     }
     timeLeft.value = timeLeft.value - 1
   }, 1000)
+
   onBeforeUnmount(() => {
     clearInterval(timer)
+    roomService.stopSubscribe()
   })
 })
 
@@ -39,13 +48,6 @@ const fetch = async () => {
   timeLeft.value = room.value.timeLeft
 }
 fetch()
-
-roomService.subscribeToRoom(roomId, (newRoom: Room) => {
-  if (newRoom) {
-    room.value = newRoom
-    timeLeft.value = room.value.timeLeft
-  }
-})
 
 const walletByUserName = (userName: string): number => {
   return (room.value.wallets || {})[userName] || 0
