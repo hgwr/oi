@@ -34,6 +34,10 @@ roomService.subscribeToRoom(roomId, (newRoom: Room) => {
   }
 })
 
+const walletByUserName = (userName: string) => {
+  return room.value.wallets[userName] || 0
+}
+
 const bet = async (roomId: string, userName: string, handIndex: number) => {
   console.log('bet: ', roomId, userName, handIndex)
   selectedHandIndex.value = handIndex
@@ -107,14 +111,23 @@ const isJoined = computed(() => {
   <div>あなたの名前 : {{ room.yourName }} {{ wallet }}</div>
 
   <div>
-    {{ room.status }}
+    <span>ステータス：</span>
+    <span v-if="!isJoined">（観戦中）</span>
+    <span v-if="room.status === Status.START">ゲーム開始</span>
+    <span v-if="room.status === Status.SHUFFLE">シャッフル中</span>
+    <span v-if="room.status === Status.HAND_OUT_CARDS">配布中</span>
+    <span v-if="room.status === Status.WAIT_TO_BET">賭けてください</span>
+    <span v-if="room.status === Status.WAIT_TO_REQUEST">もう一枚引くか決めてください</span>
+    <span v-if="room.status === Status.DEALER_TURN">親の番</span>
+    <span v-if="room.status === Status.LIQUIDATION">精算中</span>
+    <span v-if="room.status === Status.END">ゲーム終了</span>
   </div>
 
   <div
     v-for="member in room.members"
     :key="member"
   >
-    {{ member }}
+    {{ member }} {{ walletByUserName(member) }}
   </div>
 
   <div class="desk">
@@ -127,6 +140,7 @@ const isJoined = computed(() => {
         :key="card.suit + ' ' + card.rank"
         :card="card"
       />
+      <span v-if="index == 6 && hands.length > 0">親の手札</span>
       <template v-if="myBetsOf(index + 1).length > 0">
         <div
           class="myBetAmount"
