@@ -11,6 +11,7 @@ import jp.moreslowly.oi.dao.Bet;
 import jp.moreslowly.oi.dao.Room;
 import jp.moreslowly.oi.dao.Room.Status;
 import jp.moreslowly.oi.models.Card;
+import jp.moreslowly.oi.models.Member;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
@@ -33,6 +34,9 @@ public class RoomDto {
   private Status status;
 
   public static RoomDto fromEntity(Room room, String yourName) {
+    if (Objects.isNull(room.getMembers())) {
+      room.setMembers(new ArrayList<>());
+    }
     if (room.getStatus() == Status.START) {
       return maskedFromEntity(room, yourName);
     } else if (room.getStatus() == Status.SHUFFLE) {
@@ -58,7 +62,7 @@ public class RoomDto {
     return RoomDto.builder()
         .id(room.getId())
         .yourName(yourName)
-        .members(room.getMembers())
+        .members(room.getMembers().stream().map(Member::getNickname).collect(Collectors.toList()))
         .wallets(room.getWallets())
         .hands1(room.getHands1())
         .hands2(room.getHands2())
@@ -87,7 +91,7 @@ public class RoomDto {
     RoomDto dto = RoomDto.builder()
         .id(room.getId())
         .yourName(yourName)
-        .members(room.getMembers())
+        .members(room.getMembers().stream().map(Member::getNickname).collect(Collectors.toList()))
         .wallets(room.getWallets())
         .bets(Objects.isNull(room.getBets())
             ? new ArrayList<>()
@@ -118,7 +122,7 @@ public class RoomDto {
     RoomDto dto = RoomDto.builder()
         .id(room.getId())
         .yourName(yourName)
-        .members(room.getMembers())
+        .members(room.getMembers().stream().map(Member::getNickname).collect(Collectors.toList()))
         .wallets(room.getWallets())
         .bets(Objects.isNull(room.getBets())
             ? new ArrayList<>()

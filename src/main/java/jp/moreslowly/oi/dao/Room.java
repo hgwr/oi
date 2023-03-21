@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import jp.moreslowly.oi.models.Card;
+import jp.moreslowly.oi.models.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,7 +41,7 @@ public class Room {
   }
 
   @Id private String id;
-  @Builder.Default private List<String> members = new ArrayList<>();
+  @Builder.Default private List<Member> members = new ArrayList<>();
   @Builder.Default private Map<String, Integer> wallets = new HashMap<>();
   @Builder.Default private List<Card> deck = new ArrayList<>();
   @Builder.Default private List<Card> hands1 = new ArrayList<>();

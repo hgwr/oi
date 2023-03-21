@@ -30,6 +30,7 @@ import jp.moreslowly.oi.exception.FullMemberException;
 import jp.moreslowly.oi.exception.NoRoomException;
 import jp.moreslowly.oi.exception.UnprocessableContentException;
 import jp.moreslowly.oi.models.Card;
+import jp.moreslowly.oi.models.Member;
 import jp.moreslowly.oi.models.Nickname;
 import jp.moreslowly.oi.repository.RoomRepository;
 import jp.moreslowly.oi.tasks.DealerManager;
@@ -69,41 +70,54 @@ public class RoomServiceImpl implements RoomService {
     return room;
   }
 
+  private UUID getUserId(HttpSession session) {
+    String userId = (String) session.getAttribute(SessionKey.USER_ID);
+    if (Objects.isNull(userId)) {
+      userId = UUID.randomUUID().toString();
+      session.setAttribute(SessionKey.USER_ID, userId);
+    }
+    return UUID.fromString(userId);
+  }
+
   private String getNickname(HttpSession session, Room room) {
-    String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
-    if (Objects.isNull(nickname)) {
+    dealerManager.updateAndNotify(room.getId(), () -> {
       if (Objects.isNull(room.getMembers())) {
         room.setMembers(new ArrayList<>());
       }
-      List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter((name) -> {
-        return !room.getMembers().contains(name);
-      }).collect(Collectors.toList());
-      if (unusedNames.isEmpty()) {
-        throw new FullMemberException("Nickname is full");
-      }
-      nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
-      session.setAttribute(SessionKey.NICKNAME, nickname);
-      if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-        return nickname;
-      }
-      room.getMembers().add(nickname);
-      dealerManager.updateAndNotify(room.getId(), () -> {
+      String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
+      UUID userId = getUserId(session);
+      if (Objects.isNull(nickname)) {
+        List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter((name) -> {
+          return !room.getMembers().stream().anyMatch((m) -> m.getNickname().equals(name));
+        }).collect(Collectors.toList());
+        if (unusedNames.isEmpty()) {
+          throw new FullMemberException("Nickname is full");
+        }
+        nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
+        session.setAttribute(SessionKey.NICKNAME, nickname);
+        if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
+          return UpdateStatus.NOT_UPDATED;
+        }
+        room.getMembers().add(Member.builder().id(userId).nickname(nickname).build());
         roomRepository.save(room);
         return UpdateStatus.UPDATED;
-      });
-    }
+      }
+      return UpdateStatus.NOT_UPDATED;
+    });
+    String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
     return nickname;
   }
 
-  private void joinRoom(Room room, String nickname) {
+  private void joinRoom(Room room, UUID userId, String nickname) {
     if (Objects.isNull(room.getMembers())) {
       room.setMembers(new ArrayList<>());
     }
-    if (!room.getMembers().contains(nickname)) {
+    Member member = Member.builder().id(userId).nickname(nickname).build();
+    if (!room.getMembers().contains(member)) {
       if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
         return;
       }
-      room.getMembers().add(nickname);
+      room.getMembers().add(member);
       dealerManager.updateAndNotify(room.getId(), () -> {
         roomRepository.save(room);
         return UpdateStatus.UPDATED;
@@ -137,7 +151,8 @@ public class RoomServiceImpl implements RoomService {
 
     Room room = findOrCreateRoom(id);
     String nickname = getNickname(session, room);
-    joinRoom(room, nickname);
+    UUID userId = getUserId(session);
+    joinRoom(room, userId, nickname);
     prepareWallets(room, nickname);
 
     return RoomDto.fromEntity(room, nickname);
@@ -148,18 +163,11 @@ public class RoomServiceImpl implements RoomService {
 
   @Override
   public void subscribe(String id, HttpSession session, DeferredResult<RoomDto> deferredResult) {
-    String yourName;
-    String maybeYourName = (String) session.getAttribute(SessionKey.NICKNAME);
-    if (Objects.isNull(maybeYourName)) {
-      Room room = findOrCreateRoom(id);
-      yourName = getNickname(session, room);
-    } else {
-      yourName = maybeYourName;
-    }
-
+    UUID userId = getUserId(session);
     Room room = findOrCreateRoom(id);
+    String yourName = getNickname(session, room);
     if (CollectionUtils.isEmpty(room.getMembers()) || !room.getMembers().contains(yourName)) {
-      joinRoom(room, yourName);
+      joinRoom(room, userId, yourName);
     }
 
     runners.execute(() -> {
