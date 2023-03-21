@@ -159,7 +159,9 @@ public class RoomServiceImpl implements RoomService {
 
     runners.execute(() -> {
       dealerManager.waitForUpdating(id, () -> {
-        RoomDto dto = RoomDto.fromEntity(room, yourName);
+        Room newRoom = roomRepository.findById(id)
+            .orElseThrow(() -> new UnprocessableContentException("Room is not found"));
+        RoomDto dto = RoomDto.fromEntity(newRoom, yourName);
         deferredResult.setResult(dto);
       });
     });
