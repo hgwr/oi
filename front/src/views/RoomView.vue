@@ -106,29 +106,24 @@ const isJoined = computed(() => {
 </script>
 
 <template>
-  <div>{{ roomId }}</div>
+  <div class="roomId">{{ roomId }}</div>
 
-  <div>あなたの名前 : {{ room.yourName }} {{ wallet }}</div>
+  <div class="yourName">あなたの名前 : {{ room.yourName }} {{ wallet }}</div>
 
-  <div>
-    <span>ステータス：</span>
-    <span v-if="!isJoined">（観戦中）</span>
-    <span v-if="room.status === Status.START">ゲーム開始</span>
-    <span v-if="room.status === Status.SHUFFLE">シャッフル中</span>
-    <span v-if="room.status === Status.HAND_OUT_CARDS">配布中</span>
-    <span v-if="room.status === Status.WAIT_TO_BET">賭けてください</span>
-    <span v-if="room.status === Status.WAIT_TO_REQUEST">もう一枚引くか決めてください</span>
-    <span v-if="room.status === Status.DEALER_TURN">親の番</span>
-    <span v-if="room.status === Status.LIQUIDATION">精算中</span>
-    <span v-if="room.status === Status.END">ゲーム終了</span>
-  </div>
-
-  <div
-    v-for="member in room.members"
-    :key="member"
-  >
-    {{ member }} {{ walletByUserName(member) }}
-  </div>
+  <table class="balance">
+    <thead>
+      <tr>
+        <th>ユーザー名</th>
+        <th>金額</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="member in room.members" :key="member">
+        <td>{{ member }}</td>
+        <td class="amount">{{ walletByUserName(member) }}</td>
+      </tr>
+    </tbody>
+  </table>
 
   <div class="desk">
     <div
@@ -186,6 +181,19 @@ const isJoined = computed(() => {
     </div>
   </div>
 
+  <div class="statusBar">
+    <span>ステータス：</span>
+    <span v-if="!isJoined">（観戦中）</span>
+    <span v-if="room.status === Status.START">ゲーム開始</span>
+    <span v-if="room.status === Status.SHUFFLE">シャッフル中</span>
+    <span v-if="room.status === Status.HAND_OUT_CARDS">配布中</span>
+    <span v-if="room.status === Status.WAIT_TO_BET">賭けてください</span>
+    <span v-if="room.status === Status.WAIT_TO_REQUEST">もう一枚引くか決めてください</span>
+    <span v-if="room.status === Status.DEALER_TURN">親の番</span>
+    <span v-if="room.status === Status.LIQUIDATION">精算中</span>
+    <span v-if="room.status === Status.END">ゲーム終了</span>
+  </div>
+
   <BetDialog
     v-if="isDisplayBetDialog"
     :roomId="roomId"
@@ -197,6 +205,48 @@ const isJoined = computed(() => {
 </template>
 
 <style scoped>
+.roomId {
+  font-size: 10px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 0px;
+  margin: 5px;
+  text-align: center;
+}
+
+.yourName {
+  font-size: 16px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 0px;
+  margin: 5px;
+}
+
+.statusBar {
+  font-size: 16px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 0px;
+  margin: 5px;
+}
+
+.balance {
+  font-size: 16px;
+  padding: 5px;
+  margin: 5px;
+  border-collapse: collapse;
+}
+
+.balance th, .balance td {
+  border: 1px solid black;
+  border-spacing: 0;
+  padding: 2px;
+}
+
+.balance .amount {
+  text-align: right;
+}
+
 .handRow {
   display: flex;
   flex-direction: row;
