@@ -76,7 +76,6 @@ public class Room {
     this.bets = new ArrayList<>();
     this.status = Status.START;
     this.timeLeft = 0L;
-    this.lastAccessedAt = LocalDateTime.now();
     this.updatedAt = LocalDateTime.now();
   }
 

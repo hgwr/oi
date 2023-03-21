@@ -103,6 +103,11 @@ public class RoomServiceImpl implements RoomService {
       String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
       UUID userId = getUserId(session);
       if (Objects.isNull(nickname)) {
+        Optional<Member> maybeMember = room.getMembers().stream().filter(m -> m.getId().equals(userId)).findFirst();
+        if (maybeMember.isPresent()) {
+          session.setAttribute(SessionKey.NICKNAME, maybeMember.get().getNickname());
+          return UpdateStatus.NOT_UPDATED;
+        }
         List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter(name -> {
           return !room.getMembers().stream().anyMatch(m -> m.getNickname().equals(name));
         }).collect(Collectors.toList());
