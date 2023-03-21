@@ -48,20 +48,15 @@ public class RoomServiceImpl implements RoomService {
   private DealerManager dealerManager;
 
   private Room findOrCreateRoom(String id) {
-    Optional<Room> maybeRoom = roomRepository.findById(id);
-    Room room;
-    if (maybeRoom.isPresent()) {
-      room = maybeRoom.get();
-      room.setLastAccessedAt(LocalDateTime.now());
-      dealerManager.updateAndNotify(id, () -> {
-        roomRepository.save(room);
+    dealerManager.updateAndNotify(id, () -> {
+      Optional<Room> maybeRoom = roomRepository.findById(id);
+      if (maybeRoom.isPresent()) {
         return UpdateStatus.NOT_UPDATED;
-      });
-    } else {
+      }
       if (roomRepository.count() >= RoomLimitation.MAX_ROOM_SIZE) {
         throw new NoRoomException("No Room");
       }
-      room = Room.builder()
+      Room room = Room.builder()
           .id(id)
           .status(Status.START)
           .members(new ArrayList<>())
@@ -70,11 +65,18 @@ public class RoomServiceImpl implements RoomService {
           .updatedAt(LocalDateTime.now())
           .build();
       room.getWallets().put("dummy", 0);
-      dealerManager.updateAndNotify(id, () -> {
-        roomRepository.save(room);
-        return UpdateStatus.NOT_UPDATED;
-      });
-    }
+      log.info("#### create room {}", id);
+      roomRepository.save(room);
+
+      return UpdateStatus.NOT_UPDATED;
+    });
+
+    Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException("Room is not found"));
+    room.setLastAccessedAt(LocalDateTime.now());
+    dealerManager.updateAndNotify(id, () -> {
+      roomRepository.save(room);
+      return UpdateStatus.NOT_UPDATED;
+    });
     return room;
   }
 
@@ -135,6 +137,10 @@ public class RoomServiceImpl implements RoomService {
 
   private void prepareWallets(Room room, String nickname) {
     dealerManager.updateAndNotify(room.getId(), () -> {
+      Integer amount = room.getWallets().get(nickname);
+      if (Objects.nonNull(amount)) {
+        return UpdateStatus.NOT_UPDATED;
+      }
       room.getWallets().putIfAbsent(nickname, 10000);
       roomRepository.save(room);
       return UpdateStatus.UPDATED;
