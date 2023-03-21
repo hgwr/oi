@@ -83,11 +83,7 @@ public class RoomServiceImpl implements RoomService {
       }
       nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
       session.setAttribute(SessionKey.NICKNAME, nickname);
-      if (Objects.isNull(room.getMembers())) {
-        room.setMembers(new ArrayList<>());
-      }
       if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-        // throw new FullMemberException("Room is full on enter");
         return nickname;
       }
       room.getMembers().add(nickname);
@@ -105,7 +101,6 @@ public class RoomServiceImpl implements RoomService {
     }
     if (!room.getMembers().contains(nickname)) {
       if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-        // throw new FullMemberException("Room is full on join");
         return;
       }
       room.getMembers().add(nickname);
@@ -119,6 +114,7 @@ public class RoomServiceImpl implements RoomService {
   private void prepareWallets(Room room, String nickname) {
     dealerManager.updateAndNotify(room.getId(), () -> {
       if (Objects.isNull(room.getWallets())) {
+        log.warn("##### Clear Wallets !!!! ######");
         room.setWallets(new HashMap<>());
       }
       room.getWallets().putIfAbsent(nickname, 10000);
