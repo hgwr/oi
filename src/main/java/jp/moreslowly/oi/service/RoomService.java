@@ -1,5 +1,7 @@
 package jp.moreslowly.oi.service;
 
+import java.util.List;
+
 import org.springframework.web.context.request.async.DeferredResult;
 
 import jakarta.servlet.http.HttpSession;
@@ -8,6 +10,8 @@ import jp.moreslowly.oi.dto.RequestCardDto;
 import jp.moreslowly.oi.dto.RoomDto;
 
 public interface RoomService {
+
+  List<String> getRoomIdList();
 
   RoomDto enterRoom(HttpSession session, String id);
 

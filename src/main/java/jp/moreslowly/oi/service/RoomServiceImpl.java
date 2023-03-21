@@ -46,6 +46,13 @@ public class RoomServiceImpl implements RoomService {
   @Autowired
   private DealerManager dealerManager;
 
+  @Override
+  public List<String> getRoomIdList() {
+    List<String> roomIdList = new ArrayList<>();
+    roomRepository.findAll().forEach(room -> roomIdList.add(room.getId()));
+    return roomIdList;
+  }
+
   private Room findOrCreateRoom(String id) {
     dealerManager.updateAndNotify(id, () -> {
       Optional<Room> maybeRoom = roomRepository.findById(id);
