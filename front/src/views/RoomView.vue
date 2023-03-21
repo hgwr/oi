@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted } from 'vue'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import roomService from '../services/RoomService'
 import { Status } from '../types/Status'
 import { Room } from '../types/Room'
@@ -23,16 +23,11 @@ let selectedHandIndex = ref<number>(0)
 let isDisplayBetDialog = ref<boolean>(false)
 let timeLeft = ref<number>(0)
 
-onMounted(async () => {
-  room.value = await roomService.enterRoom(roomId)
-  timeLeft.value = room.value.timeLeft
-  roomService.subscribeToRoom(roomId, (newRoom: Room) => {
-    if (newRoom) {
-      room.value = newRoom
-      timeLeft.value = room.value.timeLeft
-    }
-  })
+const stopSubscribe = () => {
+  roomService.stopSubscribe()
+}
 
+onMounted(async () => {
   const timer = setInterval(() => {
     if (timeLeft.value <= 0) {
       return
@@ -44,6 +39,22 @@ onMounted(async () => {
     clearInterval(timer)
     roomService.stopSubscribe()
   })
+
+  room.value = await roomService.enterRoom(roomId)
+  timeLeft.value = room.value.timeLeft
+  roomService.subscribeToRoom(roomId, (newRoom: Room) => {
+    if (newRoom) {
+      room.value = newRoom
+      timeLeft.value = room.value.timeLeft
+    }
+  }).catch((error) => {
+    console.log('subscribeToRoom error: ', error)
+  })
+})
+
+onBeforeRouteLeave((to, from, next) => {
+  stopSubscribe()
+  next()
 })
 
 const walletByUserName = (userName: string): number => {

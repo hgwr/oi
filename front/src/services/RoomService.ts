@@ -26,7 +26,9 @@ export default class RoomService {
     while (this.isSubscribed) {
       try {
         const response = await axios.post(`/room/subscribe`, { id: roomId })
-
+        if (!this.isSubscribed) {
+          return Promise.reject('Unsubscribed')
+        }
         if (response.status == 200) {
           let room = response.data
           callback(room)
@@ -42,7 +44,7 @@ export default class RoomService {
       }
       await new Promise((resolve) => setTimeout(resolve, 500))
     }
-    return Promise.reject('Not subscribed')
+    return Promise.reject('Unsubscribed')
   }
 
   static async bet(roomId: string, userName: string, handIndex: number, betAmount: number): Promise<Room> {
