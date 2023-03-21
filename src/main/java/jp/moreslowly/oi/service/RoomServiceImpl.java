@@ -77,7 +77,8 @@ public class RoomServiceImpl implements RoomService {
       return UpdateStatus.NOT_UPDATED;
     });
 
-    Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException(UnprocessableContentException.ROOM_IS_NOT_FOUND));
+    Room room = roomRepository.findById(id)
+        .orElseThrow(() -> new UnprocessableContentException(UnprocessableContentException.ROOM_IS_NOT_FOUND));
     room.setLastAccessedAt(LocalDateTime.now());
     dealerManager.updateAndNotify(id, () -> {
       roomRepository.save(room);
@@ -95,67 +96,40 @@ public class RoomServiceImpl implements RoomService {
     return UUID.fromString(userId);
   }
 
-  private String getNickname(HttpSession session, Room room) {
+  private String getNickname(HttpSession session, UUID userId, Room room) {
     dealerManager.updateAndNotify(room.getId(), () -> {
       if (Objects.isNull(room.getMembers())) {
         room.setMembers(new ArrayList<>());
       }
-      String nickname = (String) session.getAttribute(SessionKey.NICKNAME);
-      UUID userId = getUserId(session);
-      if (Objects.isNull(nickname)) {
-        Optional<Member> maybeMember = room.getMembers().stream().filter(m -> m.getId().equals(userId)).findFirst();
-        if (maybeMember.isPresent()) {
-          session.setAttribute(SessionKey.NICKNAME, maybeMember.get().getNickname());
-          return UpdateStatus.NOT_UPDATED;
-        }
-        List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter(name -> {
-          return !room.getMembers().stream().anyMatch(m -> m.getNickname().equals(name));
-        }).collect(Collectors.toList());
-        if (unusedNames.isEmpty()) {
-          throw new FullMemberException("Nickname is full");
-        }
-        nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
-        session.setAttribute(SessionKey.NICKNAME, nickname);
-        if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-          return UpdateStatus.NOT_UPDATED;
-        }
-        room.getMembers().add(Member.builder().id(userId).nickname(nickname).build());
-        roomRepository.save(room);
-        return UpdateStatus.UPDATED;
+      Optional<Member> maybeMember = room.getMembers().stream().filter(m -> m.getId().equals(userId)).findFirst();
+      if (maybeMember.isPresent()) {
+        session.setAttribute(SessionKey.NICKNAME, maybeMember.get().getNickname());
+        return UpdateStatus.NOT_UPDATED;
       }
-      return UpdateStatus.NOT_UPDATED;
-    });
-    return (String) session.getAttribute(SessionKey.NICKNAME);
-  }
 
-  private void joinRoom(Room room, UUID userId, String nickname) {
-    dealerManager.updateAndNotify(room.getId(), () -> {
-      if (Objects.isNull(room.getMembers())) {
-        room.setMembers(new ArrayList<>());
+      List<String> unusedNames = Nickname.NICKNAME_LIST.stream().filter(name -> {
+        return room.getMembers().stream().noneMatch(m -> m.getNickname().equals(name));
+      }).collect(Collectors.toList());
+      if (unusedNames.isEmpty()) {
+        throw new FullMemberException("Nickname is full");
       }
-      Member member = Member.builder().id(userId).nickname(nickname).build();
-      if (!room.getMembers().contains(member)) {
-        if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
-          return UpdateStatus.NOT_UPDATED;
-        }
-        room.getMembers().add(member);
-        roomRepository.save(room);
-        return UpdateStatus.UPDATED;
+      String nickname = unusedNames.get((int) (Math.random() * unusedNames.size()));
+      session.setAttribute(SessionKey.NICKNAME, nickname);
+      if (room.getMembers().size() >= RoomLimitation.MAX_MEMBER_SIZE) {
+        return UpdateStatus.NOT_UPDATED;
       }
-      return UpdateStatus.NOT_UPDATED;
-    });
-  }
+      room.getMembers().add(Member.builder().id(userId).nickname(nickname).build());
 
-  private void prepareWallets(Room room, String nickname) {
-    dealerManager.updateAndNotify(room.getId(), () -> {
       Integer amount = room.getWallets().get(nickname);
       if (Objects.nonNull(amount)) {
         return UpdateStatus.NOT_UPDATED;
       }
       room.getWallets().putIfAbsent(nickname, 10000);
+
       roomRepository.save(room);
       return UpdateStatus.UPDATED;
     });
+    return (String) session.getAttribute(SessionKey.NICKNAME);
   }
 
   @Override
@@ -171,10 +145,8 @@ public class RoomServiceImpl implements RoomService {
     }
 
     Room room = findOrCreateRoom(id);
-    String nickname = getNickname(session, room);
     UUID userId = getUserId(session);
-    joinRoom(room, userId, nickname);
-    prepareWallets(room, nickname);
+    String nickname = getNickname(session, userId, room);
 
     return RoomDto.fromEntity(room, nickname);
   }
@@ -184,13 +156,9 @@ public class RoomServiceImpl implements RoomService {
 
   @Override
   public void subscribe(String id, HttpSession session, DeferredResult<RoomDto> deferredResult) {
-    UUID userId = getUserId(session);
     Room room = findOrCreateRoom(id);
-    String yourName = getNickname(session, room);
-    Member you = Member.builder().id(userId).nickname(yourName).build();
-    if (CollectionUtils.isEmpty(room.getMembers()) || !room.getMembers().contains(you)) {
-      joinRoom(room, userId, yourName);
-    }
+    UUID userId = getUserId(session);
+    String yourName = getNickname(session, userId, room);
 
     runners.execute(() -> {
       dealerManager.waitForUpdating(id, () -> {
@@ -205,7 +173,8 @@ public class RoomServiceImpl implements RoomService {
   @Override
   public void reset(String id) {
     dealerManager.updateAndNotify(id, () -> {
-      Room room = roomRepository.findById(id).orElseThrow(() -> new UnprocessableContentException(UnprocessableContentException.ROOM_IS_NOT_FOUND));
+      Room room = roomRepository.findById(id)
+          .orElseThrow(() -> new UnprocessableContentException(UnprocessableContentException.ROOM_IS_NOT_FOUND));
       room.reset();
       room.setMembers(new ArrayList<>());
       room.setUpdatedAt(LocalDateTime.now());
