@@ -52,6 +52,11 @@ public class RoomServiceImpl implements RoomService {
     Room room;
     if (maybeRoom.isPresent()) {
       room = maybeRoom.get();
+      room.setLastAccessedAt(LocalDateTime.now());
+      dealerManager.updateAndNotify(id, () -> {
+        roomRepository.save(room);
+        return UpdateStatus.NOT_UPDATED;
+      });
     } else {
       if (roomRepository.count() >= RoomLimitation.MAX_ROOM_SIZE) {
         throw new NoRoomException("No Room");
@@ -61,11 +66,13 @@ public class RoomServiceImpl implements RoomService {
           .status(Status.START)
           .members(new ArrayList<>())
           .wallets(new HashMap<>())
+          .lastAccessedAt(LocalDateTime.now())
+          .updatedAt(LocalDateTime.now())
           .build();
       room.getWallets().put("dummy", 0);
       dealerManager.updateAndNotify(id, () -> {
         roomRepository.save(room);
-        return UpdateStatus.UPDATED;
+        return UpdateStatus.NOT_UPDATED;
       });
     }
     return room;
