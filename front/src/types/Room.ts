@@ -1,6 +1,6 @@
 import { Bet } from './Bet'
 import { Card } from './Card'
-import { Status, StatusType } from './Status'
+import { StatusType } from './Status'
 
 export interface Room {
   id: string
@@ -17,4 +17,5 @@ export interface Room {
   bets: Bet[]
   status: StatusType
   timeLeft: number
+  timeLeftDenominator: number
 }

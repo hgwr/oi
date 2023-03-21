@@ -7,6 +7,7 @@ import { Room } from '../types/Room'
 import CardComponent from '../components/CardComponent.vue'
 import BetButton from '../components/BetButton.vue'
 import BetDialog from '../components/BetDialog.vue'
+import PieComponent from '../components/PieComponent.vue'
 import { namedColorSet } from '../computedStyles/namedColorSet'
 
 const router = useRouter()
@@ -155,7 +156,8 @@ const isJoined = computed(() => {
     <span v-if="room.status === Status.DEALER_TURN">親の番</span>
     <span v-if="room.status === Status.LIQUIDATION">精算中</span>
     <span v-if="room.status === Status.END">ゲーム終了</span>
-    <span>（{{ timeLeft }}）</span>
+
+    <PieComponent class="pie-chart" :percentage="timeLeft / room.timeLeftDenominator * 100" color="black" :size="16" />
   </div>
 
   <div class="boardAndDesk">
@@ -267,6 +269,22 @@ const isJoined = computed(() => {
   margin: 5px;
 }
 
+.statusBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  font-size: 16px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 0px;
+  margin: 5px;
+}
+
+.pie-chart {
+  margin-left: 10px;
+}
+
 .balance {
   font-size: 16px;
   padding: 5px;
@@ -317,14 +335,6 @@ const isJoined = computed(() => {
   background-color: #fff;
   cursor: pointer;
   margin-left: 10px;
-}
-
-.statusBar {
-  font-size: 16px;
-  padding: 5px;
-  border: 1px solid black;
-  border-radius: 0px;
-  margin: 5px;
 }
 
 @media screen and (max-width: 600px) {

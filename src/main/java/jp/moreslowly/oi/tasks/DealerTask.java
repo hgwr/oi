@@ -71,6 +71,7 @@ public class DealerTask implements Runnable {
     room.setStatus(Room.Status.START.next());
     room.setUpdatedAt(LocalDateTime.now());
     room.setTimeLeft((long) SHORT_TIMEOUT_SEC);
+    room.setTimeLeftDenominator((long) SHORT_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -112,6 +113,7 @@ public class DealerTask implements Runnable {
     room.setStatus(Room.Status.HAND_OUT_CARDS.next());
     room.setUpdatedAt(LocalDateTime.now());
     room.setTimeLeft((long) GENERAL_TIMEOUT_SEC);
+    room.setTimeLeftDenominator((long) GENERAL_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -128,6 +130,7 @@ public class DealerTask implements Runnable {
     room.setStatus(Room.Status.WAIT_TO_BET.next());
     room.setUpdatedAt(LocalDateTime.now());
     room.setTimeLeft((long) GENERAL_TIMEOUT_SEC);
+    room.setTimeLeftDenominator((long) GENERAL_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -137,6 +140,7 @@ public class DealerTask implements Runnable {
       room.setStatus(Room.Status.WAIT_TO_REQUEST.next());
       room.setUpdatedAt(LocalDateTime.now());
       room.setTimeLeft((long) SHORT_TIMEOUT_SEC);
+      room.setTimeLeftDenominator((long) SHORT_TIMEOUT_SEC);
       roomRepository.save(room);
       return UpdateStatus.UPDATED;
     }
@@ -152,6 +156,7 @@ public class DealerTask implements Runnable {
     room.setStatus(Room.Status.WAIT_TO_REQUEST.next());
     room.setUpdatedAt(LocalDateTime.now());
     room.setTimeLeft((long) SHORT_TIMEOUT_SEC);
+    room.setTimeLeftDenominator((long) SHORT_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -210,6 +215,7 @@ public class DealerTask implements Runnable {
       timeout = SHORT_TIMEOUT_SEC;
     }
     room.setTimeLeft((long) timeout);
+    room.setTimeLeftDenominator((long) timeout);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
@@ -231,6 +237,7 @@ public class DealerTask implements Runnable {
     room.setStatus(Room.Status.END.next());
     room.setUpdatedAt(LocalDateTime.now());
     room.setTimeLeft(0L);
+    room.setTimeLeftDenominator(1L);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }

@@ -54,6 +54,7 @@ public class Room {
   @Builder.Default private List<Bet> bets = new ArrayList<>();
   @Builder.Default private Status status = Status.START;
   @Builder.Default private Long timeLeft = 0L;
+  @Builder.Default private Long timeLeftDenominator = 1L;
   private LocalDateTime lastAccessedAt;
   private LocalDateTime updatedAt;
 
@@ -76,6 +77,7 @@ public class Room {
     this.bets = new ArrayList<>();
     this.status = Status.START;
     this.timeLeft = 0L;
+    this.timeLeftDenominator = 1L;
     this.updatedAt = LocalDateTime.now();
   }
 

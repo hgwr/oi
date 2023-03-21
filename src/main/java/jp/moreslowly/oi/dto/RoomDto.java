@@ -31,6 +31,7 @@ public class RoomDto {
   private List<Card> hands7;
   private List<BetDto> bets;
   private Long timeLeft;
+  private Long timeLeftDenominator;
   private Status status;
 
   public static RoomDto fromEntity(Room room, String yourName) {
@@ -76,6 +77,7 @@ public class RoomDto {
             : room.getBets().stream().map(BetDto::fromEntity).collect(Collectors.toList()))
         .status(room.getStatus())
         .timeLeft(room.getTimeLeft())
+        .timeLeftDenominator(room.getTimeLeftDenominator())
         .build();
   }
 
@@ -98,6 +100,7 @@ public class RoomDto {
             : room.getBets().stream().map(BetDto::fromEntity).collect(Collectors.toList()))
         .status(room.getStatus())
         .timeLeft(room.getTimeLeft())
+        .timeLeftDenominator(room.getTimeLeftDenominator())
         .build();
 
     for (int handIndex : Arrays.asList(1, 2, 3, 4, 5, 6, 7)) {
@@ -129,6 +132,7 @@ public class RoomDto {
             : room.getBets().stream().map(BetDto::fromEntity).collect(Collectors.toList()))
         .status(room.getStatus())
         .timeLeft(room.getTimeLeft())
+        .timeLeftDenominator(room.getTimeLeftDenominator())
         .build();
 
     for (int handIndex : Arrays.asList(1, 2, 3, 4, 5, 6, 7)) {
