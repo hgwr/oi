@@ -42,6 +42,7 @@ export default class RoomService {
       }
       await new Promise((resolve) => setTimeout(resolve, 500))
     }
+    return Promise.reject('Not subscribed')
   }
 
   static async bet(roomId: string, userName: string, handIndex: number, betAmount: number): Promise<Room> {
