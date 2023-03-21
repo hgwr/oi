@@ -5,12 +5,14 @@ import org.springframework.data.redis.core.RedisHash;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @RedisHash("bet")
 @Data
 @SuperBuilder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Bet {
   public enum Result {
     WIN("WIN"),
@@ -20,6 +22,9 @@ public class Bet {
     private Result(String value) {
       this.value = value;
     }
+    public String getValue() {
+      return value;
+    }
   }
   @Id private String id;
   private String roomId;
@@ -27,7 +32,4 @@ public class Bet {
   private Integer handIndex;
   private Integer betAmount;
   private Result result;
-
-  public Bet() {
-  }
 }
