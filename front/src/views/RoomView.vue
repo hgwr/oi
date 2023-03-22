@@ -5,6 +5,7 @@ import roomService from '../services/RoomService'
 import { Status } from '../types/Status'
 import { Room } from '../types/Room'
 import CardComponent from '../components/CardComponent.vue'
+import BetComponent from '../components/BetComponent.vue'
 import BetButton from '../components/BetButton.vue'
 import BetDialog from '../components/BetDialog.vue'
 import PieComponent from '../components/PieComponent.vue'
@@ -42,14 +43,16 @@ onMounted(async () => {
 
   room.value = await roomService.enterRoom(roomId)
   timeLeft.value = room.value.timeLeft
-  roomService.subscribeToRoom(roomId, (newRoom: Room) => {
-    if (newRoom) {
-      room.value = newRoom
-      timeLeft.value = room.value.timeLeft
-    }
-  }).catch((error) => {
-    console.log('subscribeToRoom error: ', error)
-  })
+  roomService
+    .subscribeToRoom(roomId, (newRoom: Room) => {
+      if (newRoom) {
+        room.value = newRoom
+        timeLeft.value = room.value.timeLeft
+      }
+    })
+    .catch((error) => {
+      console.log('subscribeToRoom error: ', error)
+    })
 })
 
 onBeforeRouteLeave((to, from, next) => {
@@ -164,7 +167,12 @@ const isJoined = computed(() => {
     <span v-if="room.status === Status.LIQUIDATION">精算中</span>
     <span v-if="room.status === Status.END">ゲーム終了</span>
 
-    <PieComponent class="pie-chart" :percentage="timeLeft / room.timeLeftDenominator * 100" color="black" :size="16" />
+    <PieComponent
+      class="pie-chart"
+      :percentage="(timeLeft / room.timeLeftDenominator) * 100"
+      color="black"
+      :size="16"
+    />
   </div>
 
   <div class="boardAndDesk">
@@ -195,23 +203,22 @@ const isJoined = computed(() => {
         class="handRow"
         v-for="(hands, index) in roomHands()"
       >
-        <CardComponent
-          v-for="card in hands"
-          :key="card.suit + ' ' + card.rank"
-          :card="card"
-        />
+        <TransitionGroup>
+          <CardComponent
+            v-for="card in hands"
+            :key="card.suit + ' ' + card.rank"
+            :card="card"
+          />
+        </TransitionGroup>
         <span v-if="index == 6 && hands.length > 0">親の手札</span>
         <template v-if="myBetsOf(index + 1).length > 0">
-          <div
-            :class="['myBetAmount', namedColorSet(room.yourName)]"
-            v-for="bet in myBetsOf(index + 1)"
-            :key="bet.userName"
-          >
-            {{ bet.betAmount }}
-            <span v-if="bet.result === 'WIN'">勝ち</span>
-            <span v-if="bet.result === 'LOSE'">負け</span>
-            <span v-if="bet.result === 'DRAW'">引き分け</span>
-          </div>
+          <TransitionGroup>
+            <BetComponent
+              v-for="bet in myBetsOf(index + 1)"
+              :key="bet.userName"
+              :bet="bet"
+            />
+          </TransitionGroup>
           <button
             class="requestCard"
             v-if="room.status === Status.WAIT_TO_REQUEST && roomHands()[index].length === 2"
@@ -232,32 +239,39 @@ const isJoined = computed(() => {
           </template>
         </template>
         <template v-if="betsOf(index + 1).length > 0">
-          <div
+          <BetComponent
             v-for="bet in betsOf(index + 1)"
             :key="bet.userName"
-            :class="['betAmount', namedColorSet(bet.userName)]"
-          >
-            {{ bet.betAmount }}
-            <span v-if="bet.result === 'WIN'">勝ち</span>
-            <span v-if="bet.result === 'LOSE'">負け</span>
-            <span v-if="bet.result === 'DRAW'">引き分け</span>
-          </div>
+            :bet="bet"
+          />
         </template>
       </div>
     </div>
   </div>
 
-  <BetDialog
-    v-if="isDisplayBetDialog"
-    :roomId="roomId"
-    :userName="room.yourName"
-    :handIndex="selectedHandIndex"
-    @closeBetDialog="closeBetDialog"
-    @bet="betComplete"
-  />
+  <Transition>
+    <BetDialog
+      v-if="isDisplayBetDialog"
+      :roomId="roomId"
+      :userName="room.yourName"
+      :handIndex="selectedHandIndex"
+      @closeBetDialog="closeBetDialog"
+      @bet="betComplete"
+    />
+  </Transition>
 </template>
 
 <style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
 .roomId {
   font-size: 10px;
   padding: 3px;
