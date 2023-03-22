@@ -48,7 +48,7 @@ function shuffle() {
 watch(shuffledCards, () => {
   setTimeout(() => {
     shuffle();
-  }, 200);
+  }, 300);
 });
 </script>
 

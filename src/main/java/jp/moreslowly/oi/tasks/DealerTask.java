@@ -63,22 +63,24 @@ public class DealerTask implements Runnable {
   }
 
   private static final int SHORT_TIMEOUT_SEC = 5;
+  private static final int SHUFFLE_TIMEOUT_SEC = 3;
   private static final int GENERAL_TIMEOUT_SEC = 30;
+  private static final int MIDDLE_TIMEOUT_SEC = 20;
 
   private UpdateStatus processStart(Room room) {
     log.info("processStart: room id {}", room.getId());
     room.reset();
     room.setStatus(Room.Status.START.next());
     room.setUpdatedAt(LocalDateTime.now());
-    room.setTimeLeft((long) SHORT_TIMEOUT_SEC);
-    room.setTimeLeftDenominator((long) SHORT_TIMEOUT_SEC);
+    room.setTimeLeft((long) SHUFFLE_TIMEOUT_SEC);
+    room.setTimeLeftDenominator((long) SHUFFLE_TIMEOUT_SEC);
     roomRepository.save(room);
     return UpdateStatus.UPDATED;
   }
 
   private UpdateStatus processShuffle(Room room) {
     LocalDateTime now = LocalDateTime.now();
-    LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHORT_TIMEOUT_SEC);
+    LocalDateTime timeLimit = room.getUpdatedAt().plusSeconds(SHUFFLE_TIMEOUT_SEC);
     if (Objects.nonNull(room.getUpdatedAt()) && now.isBefore(timeLimit)) {
       room.setTimeLeft(ChronoUnit.SECONDS.between(now, timeLimit));
       roomRepository.save(room);
@@ -210,7 +212,7 @@ public class DealerTask implements Runnable {
 
     room.setStatus(Room.Status.LIQUIDATION.next());
     room.setUpdatedAt(LocalDateTime.now());
-    int timeout = GENERAL_TIMEOUT_SEC;
+    int timeout = MIDDLE_TIMEOUT_SEC;
     if (CollectionUtils.isEmpty(room.getBets())) {
       timeout = SHORT_TIMEOUT_SEC;
     }
@@ -221,7 +223,7 @@ public class DealerTask implements Runnable {
   }
 
   private UpdateStatus processEnd(Room room) {
-    int timeout = GENERAL_TIMEOUT_SEC;
+    int timeout = MIDDLE_TIMEOUT_SEC;
     if (CollectionUtils.isEmpty(room.getBets())) {
       timeout = SHORT_TIMEOUT_SEC;
     }

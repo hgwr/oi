@@ -200,7 +200,9 @@ const isJoined = computed(() => {
     </table>
 
     <div class="desk">
-      <ShuffleAnimation v-if="room.status === Status.SHUFFLE" />
+      <Transition>
+        <ShuffleAnimation v-if="room.status === Status.SHUFFLE" />
+      </Transition>
       <div
         class="handRow"
         v-for="(hands, index) in roomHands()"
