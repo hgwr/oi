@@ -9,6 +9,7 @@ import BetComponent from '../components/BetComponent.vue'
 import BetButton from '../components/BetButton.vue'
 import BetDialog from '../components/BetDialog.vue'
 import PieComponent from '../components/PieComponent.vue'
+import ShuffleAnimation from '../components/ShuffleAnimation.vue'
 import { namedColorSet } from '../computedStyles/namedColorSet'
 
 const router = useRouter()
@@ -199,6 +200,7 @@ const isJoined = computed(() => {
     </table>
 
     <div class="desk">
+      <ShuffleAnimation v-if="room.status === Status.SHUFFLE" />
       <div
         class="handRow"
         v-for="(hands, index) in roomHands()"
