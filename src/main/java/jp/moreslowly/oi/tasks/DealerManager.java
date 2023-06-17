@@ -35,7 +35,7 @@ public class DealerManager {
   private ConcurrentHashMap<String, Object> lockMap = new ConcurrentHashMap<>();
 
   private ExecutorService runners = Executors
-      .newFixedThreadPool(RoomLimitation.MAX_ROOM_SIZE * 2);
+      .newFixedThreadPool(RoomLimitation.MAX_ROOM_SIZE);
 
   private Object getLock(String roomId) {
     return lockMap.computeIfAbsent(roomId, k -> new Object());

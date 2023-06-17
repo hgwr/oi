@@ -1,4 +1,5 @@
 package jp.moreslowly.oi.models;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -13,4 +14,5 @@ import lombok.experimental.SuperBuilder;
 public class Member {
   private String nickname;
   private UUID id;
+  private LocalDateTime lastAccessedAt;
 }

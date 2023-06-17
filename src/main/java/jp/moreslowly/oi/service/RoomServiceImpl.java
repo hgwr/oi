@@ -161,6 +161,15 @@ public class RoomServiceImpl implements RoomService {
     UUID userId = getUserId(session);
     String yourName = getNickname(session, userId, room);
 
+    dealerManager.updateAndNotify(room.getId(), () -> {
+      room.setLastAccessedAt(LocalDateTime.now());
+      room.getMembers().stream().filter(m -> m.getId().equals(userId)).findFirst().ifPresent(m -> {
+        m.setLastAccessedAt(LocalDateTime.now());
+      });
+      roomRepository.save(room);
+      return UpdateStatus.NOT_UPDATED;
+    });
+
     runners.execute(() -> {
       dealerManager.waitForUpdating(id, () -> {
         Room newRoom = roomRepository.findById(id)
@@ -193,8 +202,7 @@ public class RoomServiceImpl implements RoomService {
         return UpdateStatus.NOT_UPDATED;
       }
       Room room = maybeRoom.get();
-      Member you = Member.builder().id(userId).nickname(betDto.getUserName()).build();
-      if (!room.getMembers().contains(you)) {
+      if (!room.getMembers().stream().anyMatch(m -> m.getId().equals(userId))) {
         throw new UnprocessableContentException("Invalid nickname");
       }
 
@@ -220,8 +228,7 @@ public class RoomServiceImpl implements RoomService {
         return UpdateStatus.NOT_UPDATED;
       }
       Room room = maybeRoom.get();
-      Member you = Member.builder().id(userId).nickname(requestOneMoreDto.getUserName()).build();
-      if (!room.getMembers().contains(you)) {
+      if (!room.getMembers().stream().anyMatch(m -> m.getId().equals(userId))) {
         throw new UnprocessableContentException("You are not member of this room");
       }
 
