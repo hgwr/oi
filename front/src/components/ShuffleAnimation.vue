@@ -71,7 +71,9 @@ watch(shuffledCards, () => {
 .card-back {
   width: 100%;
   height: 100%;
-  background-color: blue;
+  background-color: gray;
+  background-image: url('/The pattern on the back of a playing card, black and white and classic.jpeg');
+  background-size: cover;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }

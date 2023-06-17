@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import { Suit, SuitType, PrintableSuit, Rank, RankType, PrintableRank, Card } from '../types/Card';
 
 defineProps<{
