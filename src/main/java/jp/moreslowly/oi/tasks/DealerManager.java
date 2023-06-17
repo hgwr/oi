@@ -1,5 +1,6 @@
 package jp.moreslowly.oi.tasks;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,6 +70,9 @@ public class DealerManager {
   @Scheduled(fixedRate = 1000)
   public void startDealer() {
     roomRepository.findAll().forEach(room -> {
+      if (Objects.isNull(room)) {
+        return;
+      }
       runners.submit(new DealerTask(this, roomRepository, room.getId()));
     });
   }
