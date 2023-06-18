@@ -18,31 +18,35 @@ Access to http://localhost:8080/
 
 demo: https://oi.moreslowly.jp/
 
-### Objective of the Game
+## 遊び方
 
-Oi is a Oicho-Kabu like card game. It is a simple card game that uses a standard deck of playing cards. Players compete by calculating the units digit of the sum of their cards. The player with the strongest hand wins the bet.
+### ゲームの目的
 
-### Preparation
+Oi はおいちょかぶに似たカードゲームです。それはトランプを使用したシンプルなカードゲームです。プレイヤーは手札のカードの合計値の一桁目で競います。最も強い手札を持つプレイヤーが勝者となり、賭けた金額を獲得します。
 
-- 1 to 6 players
+### 準備
 
-### Game Progression
+- 1 〜 6 人のプレイヤー
 
-1. **Dealing the Cards**: At the start of the game, each player is dealt two cards. One card is face down (hidden), and the other is face up (visible).
+### ゲームの進行
 
-2. **Setting the Bet**: Players place bets if they feel confident about the strength of their hand.
+1. **手札の配布**: ゲームが開始されると、各プレイヤーに2枚のカードが配られます。1枚は裏向き（見えない）、もう1枚は表向き（見える）となります。
 
-3. **Revealing the Card**: Players who have placed bets will turn over their face-down card, allowing them to see both of their cards.
+2. **賭け金の設定**: プレイヤーは手札の強さに自信があると感じた場合、任意の賭け金を設定します。
 
-4. **Calculating Hand Strength**: Add the values of the two cards in your hand. For this calculation, J is 11, Q is 12, and K is 13, while numerical cards hold their face value. Suits do not matter. The strength of a hand is determined by the units digit of the sum of the cards. 9 is the strongest, followed by 8, 7, 6, 5, 4, 3, 2, 1, and 0.
+3. **カードの公開**: 賭け金を設定したプレイヤーは、裏向きになっていたカードをめくり、手札の2枚を確認します。
 
-5. **Requesting an Additional Card**: If a player is not satisfied with the strength of their hand, they may request one additional card. In this case, the hand strength is calculated using the units digit of the sum of the three cards.
+4. **手札の強さの計算**: 手札の2枚のカードを足し合わせます。このとき、Jは11、Qは12、Kは13として計算し、数字のカードはそのままの数値で計算します。スートは関係ありません。手札の強さは、カードの合計値の一桁目によって決まります。9が最も強く、8, 7, 6, 5, 4, 3, 2, 1, 0 の順に弱くなります。
 
-6. **Computer Player’s Hand**: After the player has determined the strength of their hand, the computer player, acting as the dealer, constructs its hand and determines its strength.
+5. **追加カードの要求**: プレイヤーは、手札の強さに満足がいかない場合、もう1枚のカードを要求することができます。この場合、3枚のカードの合計値の一桁目で手札の強さを計算します。
 
-7. **Determining the Winner**: Compare the strength of the player’s hand with the strength of the computer player’s hand. If the player’s hand is stronger, they are paid the amount of the bet.
+6. **コンピュータプレイヤーの手札**: プレイヤーが手札の強さを決定した後、コンピュータプレイヤーが親として自分の手札を構成し、強さを決定します。
 
-### Points to Note
+7. **勝敗の判定**: プレイヤーの手札の強さとコンピュータプレイヤーの手札の強さを比較します。プレイヤーの方が強ければ、賭けた金額
 
-- If the units digit of the sum is the same for both players, it is considered a draw.
-- Players should carefully consider whether or not to request an additional card. The third card can alter the strength of their hand.
+がプレイヤーに支払われます。
+
+### 注意点
+
+- 合計値の一桁目が同じ場合、引き分けとなります。
+- プレイヤーは追加カードを要求するかどうか慎重に考えましょう。3枚目のカードによって、手札の強さが変わります。
