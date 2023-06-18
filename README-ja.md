@@ -10,6 +10,8 @@ cd ..
 java -jar build/libs/oi-0.0.1-SNAPSHOT.jar
 ```
 
+Start redis.
+
 Access to http://localhost:8080/
 
 ## How to play oi
